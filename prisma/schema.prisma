@@ -1,0 +1,370 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client" // ← Add this line
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String?
+  description String
+  price       Float
+  stock       Int
+  images      String[] // Array of image URLs
+
+  // ========= NEW FIELDS FOR DISCOUNT/PRICING ===============
+  originalPrice      Float? // Nullable (only set if product is onSale)
+  discountPercentage Float? // Optional (if you want to manually set %)
+  isOnSale           Boolean   @default(false) // Quick filter for discounted items
+  saleEndsAt         DateTime? // Optional (for time-limited discounts)
+  hasFreeShipping    Boolean?
+  isBestSeller       Boolean?
+
+  // Relations
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @db.ObjectId
+
+  variants         Variant[]
+  defaultVariantId String?   @unique @db.ObjectId @default("unset") // points to default variant
+  defaultVariant   Variant?  @relation("DefaultVariant", fields: [defaultVariantId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reviews          Review[]
+
+  // Product Identification
+  sku   String  @unique
+  brand String?
+
+  // To Know if a Product is New
+  isNew Boolean?
+
+  // Physical Attributes
+  weight     Float?
+  dimensions String? // "10*5*2"
+
+  // Discoverablity
+  tags          String[]
+  averageRating Float    @default(0)
+  reviewCount   Int      @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Shopping Relations
+  CartItem     CartItem[]
+  WishlistItem WishlistItem[]
+  OrderItem    OrderItem[]
+  DealOfTheDay DealOfTheDay[]
+
+  @@index([name, categoryId]) // for frequently queried fields and speeding up the searches
+}
+
+model Category {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    @unique
+  slug      String    @unique
+  image     String? // Category Image URL
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  parentId String?    @db.ObjectId
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("CategoryToCategory")
+
+  // for easier querying of full paths
+  path  String[] // e.g. ["root", "health", cleaning]
+  depth Int      @default(0)
+
+  products Product[]
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String? // Only for credential-based auth (hashed)
+  image         String?
+
+  // Authentication
+  accounts Account[] // For OAuth connections
+  sessions Session[] // Login sessions
+
+  // Roles and permissions
+  role Role @default(CUSTOMER)
+
+  // User metadata
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  lastLogin DateTime?
+
+  // Address Book
+  addresses Address[]
+
+  // Shopping data
+  cart CartItem[]
+
+  // User status
+  active            Boolean   @default(true)
+  verificationToken String? // For email verification
+  resetToken        String? // For password reset
+  resetTokenExpiry  DateTime?
+
+  WishlistItem WishlistItem[]
+
+  // user's orders
+  order Order[]
+
+  // user's reviews
+  reviews Review[]
+}
+
+// Supporting models for authentication
+model Account {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @db.ObjectId
+  user              User     @relation(fields: [userId], references: [id])
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.String
+  access_token      String?  @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id])
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Supporting model for user
+model Address {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String   @default("US")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shippingOrders Order[] @relation("OrderShippingAddress")
+  billingOrders  Order[] @relation("OrderBillingAddress")
+}
+
+model CartItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WishlistItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.ObjectId
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber String @unique
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  items OrderItem[]
+
+  shippingAddressId String  @db.ObjectId
+  shippingAddress   Address @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+
+  billingAddressId String  @db.ObjectId
+  billingAddress   Address @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+
+  subtotal     Float
+  tax          Float
+  shippingCost Float
+  discount     Float @default(0)
+  total        Float
+
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+
+  status         OrderStatus @default(PROCESSING)
+  trackingNumber String?
+
+  carrier String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @db.ObjectId
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity        Int
+  priceAtPurchase Float
+
+  variantId String?  @db.ObjectId
+  variant   Variant? @relation(fields: [variantId], references: [id])
+}
+
+model Variant {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  isDefault Boolean?
+
+  name  String
+  sku   String @unique // Variant-specific SKU
+  price Float
+  stock Int    @default(0)
+
+  discount Float?
+
+  attributes Json // {color: 'red', size: 'XL'}
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  OrderItem OrderItem[]
+
+  productDefaultVariant Product? @relation("DefaultVariant")
+}
+
+model Review {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  rating   Int     @default(5) // 1-5
+  title    String
+  comment  String?
+  approved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  code String @unique
+
+  discountType    DiscountType @default(PERCENTAGE)
+  discountValue   Float
+  minimumOrder    Float?
+  maximumDiscount Float?
+
+  startDate DateTime
+  endDate   DateTime
+
+  maxUses     Int?
+  currentUses Int  @default(0)
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DealOfTheDay {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  dealName           String?
+  dealEndTime        DateTime
+  dailyDealProduct   Product  @relation(fields: [dailyDealProductId], references: [id])
+  dailyDealProductId String   @db.ObjectId
+  discountRate       Float    @default(0.2) // 20% off by default
+  isActive           Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Enum for the new models
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum OrderStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+// Enum for user roles
+enum Role {
+  ADMIN
+  EDITOR
+  CUSTOMER
+}

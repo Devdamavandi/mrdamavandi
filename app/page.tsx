@@ -1,0 +1,207 @@
+<<<<<<< HEAD
+
+
+
+'use client'
+
+import CategoryShowcase from "@/components/category-showcase"
+import DailyDealCard from "@/components/DailyDealCard"
+import ProductCard from "@/components/productCard"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import ValueProp from "@/components/ValueProp"
+import { useDeal, useProducts } from "@/hooks/useProducts"
+import { isProductNew } from "@/lib/utils"
+import { Headphones, RefreshCw, ShieldCheck, Truck } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+
+export default function Home() {
+
+ const {data: featuredProducts, isLoading, error} = useProducts()
+ const {data: deal} = useDeal()
+ const [endTime, setEndTime] = useState<Date | null>(null)
+
+
+
+ useEffect(() => {
+  setEndTime(deal?.dealEndTime ?? null)
+ }, [deal?.dealEndTime])
+ 
+  return (
+    <div className="container mx-auto">
+      {/*  HEADER SECTION */}
+      <header className="relative h-[500px] bg-gradient-to-r from-blue-900 to-purple-800">
+        {/* Background Overlay */}
+        <div className="absolute inset-0 bg-black/40"/>
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center px-8 max-w-7xl mx-auto">
+          <h1 className="md:text-5xl text-4xl font-bold text-white mb-4">Everything You Need, <span className="text-yellow-300">Delivered Fast</span></h1>
+          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl">Millions of products with free shipping on orders over $50</p>
+        </div>
+      </header>
+
+      {/* Search Bar */}
+      <div>
+        {/* <SearchBarComp/> */}
+      </div>
+
+
+      {/* CATEGORY SHOWCASE ( Horizontal Scroll )*/}
+      <section className="py-12 container mx-auto px-4">
+        <h2 className="text-3xl font-bold mt-2 text-center mb-2 ">Shop by Category</h2>
+        <CategoryShowcase/>
+      </section>
+
+
+      {/* Featured Products ( Grid Layout ) */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold">Trending Now</h2>
+            <Link href={'/products'} className="hover:text-blue-500 font-normal text-2xl">
+              View All
+            </Link>
+          </div>
+          <div className="w-full">
+            {isLoading && <p>Loading</p>}
+            {error && <p>Error Loaing Products!</p>}
+            <Carousel className="w-full">
+              <CarouselContent>
+                  {featuredProducts?.map(product => (
+                  <CarouselItem key={product.id} className="basis-[250px] md:basis-[300px] lg:basis-[340px] flex">
+                    <ProductCard 
+                      key={product.id}
+                      id={product.id ?? ''}
+                      name={product.name}
+                      image={product.images?.[0] || '/default-image.jpg'}
+                      price={product.price}
+                      stock={product.stock}
+                      averageRating={product.averageRating}
+                      badge={product.isOnSale ? "On Sale" : ""}
+                      isNew={product.createdAt ? isProductNew(new Date(product.createdAt)) : false}
+                      originalPrice={product.originalPrice}
+                      hasFreeShipping={product.hasFreeShipping}
+                      isBestseller={product.isBestSeller}
+                      hreff={`/products/${product.slug}`}
+                    />
+                </CarouselItem>
+                  ))}
+              </CarouselContent>
+                <CarouselPrevious className="absolute lg:left-[-70px] top-1/2 -translate-y-1/2 size-16 cursor-pointer  transition-all duration-200 "/>
+                <CarouselNext className="absolute lg:right-[-70px] top-1/2 -translate-y-1/2 size-16 cursor-pointer transition-all duration-200 " />
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Propositions ( Trust Signals ) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t py-8">
+              <ValueProp icon={<ShieldCheck/>} title="Secure Payments" />
+              <ValueProp icon={<Truck/>} title="Free Shipping Over $50" />
+              <ValueProp icon={<RefreshCw/>} title="Easy Returns" />
+              <ValueProp icon={<Headphones/>} title="24/7 Support" />
+      </div>
+
+
+      {/* Deal of the Day ( Timer + Featured ) */}
+        <section className="py-12 bg-rose-50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between items-start gap-4 mb-6">
+              <h2 className="text-3xl font-bold">Deal of the Day</h2>
+              {deal?.isActive&& <p className="text-gray-600">Limited time offer - dont miss out!</p>}
+            </div>
+
+            
+            {deal?.isActive ? (<DailyDealCard id={deal.dailyDealProduct.id} discountRate={deal.discountRate} endTime={deal.dealEndTime}/>)
+            : 
+            (
+               <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                 <h3 className="text-xl font-medium text-gray-700">No active deal available!</h3>
+                 <p className="text-sm text-gray-500 mt-2">Check back later for new deals!</p>
+               </div>
+            )
+            }
+          </div>
+        </section>
+
+
+
+      {/* Customer Testimonials  */}
+        <section className="py-12">
+          <h2 className="text-3xl font-bold mb-8 text-center">What Our Customers Say</h2>
+          {/* <TestimonialCarousel testimonials={testimonials} /> */}
+        </section>
+
+
+        {/* Newsletter Signup */}
+        <section>
+          <div>
+            <h2>Get 10% Off Your First Order</h2>
+            <p>Subscribe to our newsletter for exclusive deals</p>
+            {/* <NewsletterForm/> */}
+          </div>
+        </section>
+    </div>
+  )
+
+=======
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+
+export default function Home() {
+  return (
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <Button>button</Button>
+      </main>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/file.svg"
+            alt="File icon"
+            width={16}
+            height={16}
+          />
+          Learn
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Examples
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/globe.svg"
+            alt="Globe icon"
+            width={16}
+            height={16}
+          />
+          Go to nextjs.org →
+        </a>
+      </footer>
+    </div>
+  );
+>>>>>>> 9a6bb5eaf5fc71426c75b15bc069315aeb029533
+}
