@@ -44,8 +44,8 @@ const CategoryShowcase = () => {
               }
             </CarouselContent>
             {/* Carousel Navigation Arrows */}
-              <CarouselPrevious className="absolute left-[-70px] top-1/2 -translate-y-1/2 size-16 cursor-pointer  transition-all duration-200 "/>
-              <CarouselNext className="absolute right-[-70px] top-1/2 -translate-y-1/2 size-16 cursor-pointer transition-all duration-200 " />
+              <CarouselPrevious className="absolute md:left-[-50px] lg:left-[-50px] top-1/2 -translate-y-1/2 size-16 cursor-pointer  transition-all duration-200 "/>
+              <CarouselNext className="absolute md:right-[-50px] lg:right-[-50px] top-1/2 -translate-y-1/2 size-16 cursor-pointer transition-all duration-200 " />
           </Carousel>
         </div>
      )

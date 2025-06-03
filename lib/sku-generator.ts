@@ -6,7 +6,7 @@
  */
 
 
-export const generateSKU = async (name: string, categoryId: string | null, variantAttributes?: Record<string, string>): Promise<string> => {
+export const generateSKU = async (name: string, categoryId: string | null, variantAttributes?: Record<string, string> | null): Promise<string> => {
 
     // Base SKU Parts
     const categoryPrefix = categoryId 

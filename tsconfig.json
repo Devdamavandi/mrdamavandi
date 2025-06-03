@@ -18,14 +18,9 @@
         "name": "next"
       }
     ],
-<<<<<<< HEAD
     "types": ["next-auth"],
     "paths": {
       "@/*": ["./*"]
-=======
-    "paths": {
-      "@/*": ["./src/*"]
->>>>>>> 9a6bb5eaf5fc71426c75b15bc069315aeb029533
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

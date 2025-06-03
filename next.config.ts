@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-
-
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -12,13 +8,11 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' }
     ]
   },
- 
-    serverExternalPackages: [
-      '@prisma/client',
-      '@next-auth/prisma-adapter',
-      'bcryptjs'
-    ],
- 
+
+  // This option is only valid in app directory projects (Next.js 13+)
+  experimental: {
+  },
+
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -38,12 +32,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-=======
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
->>>>>>> 9a6bb5eaf5fc71426c75b15bc069315aeb029533

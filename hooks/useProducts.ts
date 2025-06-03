@@ -160,11 +160,7 @@ const updateProduct = async (product: ProductFormValues): Promise<ProductFormVal
         ...product,
         price: Number(product.price),
         stock: Number(product.stock),
-        variants: product.variants?.map(variant => ({
-            ...variant,
-            price: Number(variant.price),
-            stock: Number(variant.stock)
-        }))
+        variants: product?.variants
     }
 
 

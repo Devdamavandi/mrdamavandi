@@ -86,7 +86,7 @@ const ProductsPage = () => {
                 </PopoverTrigger>
                 <PopoverContent className="w-80 z-10 bg-white">
                     <div className="space-y-2">
-                        <h1 className="font-bold">Table Settings</h1>
+                        <h1 className="font-bold">Table Settings</h1>``
                         <p className=" text-gray-400 text-sm ">Set the table properties here</p>
                         <h2>Show/Hide Columns</h2>
                         <ColumnSettingsComponent visibleColumns={visibleColumns}   onToggleColumn={toggleColumn}/>

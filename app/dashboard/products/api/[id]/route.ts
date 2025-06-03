@@ -10,7 +10,8 @@ export async function GET(request: Request, {params} : {params: {id: string}}) {
         const product = await prisma.product.findUnique({
             where: {id},
             include: {
-                category: true
+                category: true,
+                variants: true
             }
         })
 
@@ -42,9 +43,24 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
             price: body.price,
             stock: body.stock,
             images: body.images,
-            categoryId: body.categoryId
+            categoryId: body.categoryId,
+            variants: {
+                deleteMany: {},
+                create: body.variants.map((v: any) => ({
+                    name: v.name,
+                    sku: v.sku,
+                    price: v.price,
+                    stock: v.price,
+                    discount: v.discount,
+                    isDefault: v.isDefault,
+                    attributes: v.attributes
+                }))
+            }
             // Omit createdAt and updatedAt as they're managed by Prisma
         },
+        include: {
+            variants: true
+        }
     })
 
 
@@ -67,7 +83,7 @@ export async function DELETE(request: Request, {params} : {params: {id: string}}
 
     try {
 
-        const id = await params.id
+        const {id} = await params
         
         const product = await prisma.product.delete({
             where: {id}

@@ -38,31 +38,63 @@ export async function POST(request: Request) {
             }, {status: 400})
         }
 
-        const sku = await generateSKU(body.name, body.categoryId || null)
+        const variantss = body.variants || []
 
-        const productData = {
+        /** 👇 This Part is for more security about variants check in Backend 👇 */
+       
+
+        // If variants exist, but none is default, make first one default
+        const defaultVariants = variantss.filter(v => v.isDefault)
+        if (variantss.length > 0 && defaultVariants.length === 0) {
+            variantss[0].isDefault = true
+        } else if (variantss.length > 0 && defaultVariants.length > 1) {
+            return NextResponse.json({ error: 'Only one variant can be marked as default!'}, {status: 400})
+        }
+
+        // Generate SKUs for variants if missing
+        if (variantss.length > 0) {
+            for (const variantt of variantss) {
+                if (!variantt.sku) {
+                    variantt.sku = await generateSKU(
+                        body.name,
+                        body.categoryId || null,
+                        variantt.attributes || {}
+                    )
+                }
+            }
+        }
+        
+        const product = await prisma.product.create ({
+            data: {
                 name: body.name,
                 description: body.description || '',
-                sku,
+                sku: await generateSKU(body.name, body.categoryId || null, null),
                 price: parseFloat(body.price),
                 stock: parseInt(body.stock) || 0,
                 images: body.images || [],
+                variants: {
+                    create: variantss.map((v: any) => ({
+                        name: v.name,
+                        sku: v.sku,
+                        price: v.price,
+                        stock: v.stock,
+                        isDefault: v.isDefault,
+                        attributes: v.attributes
+                    }))
+                },
                 ...(body.categoryId && { categoryId: body.categoryId }) // Only include if exists
-        }
-
-        console.log('Processed data:', productData); // Debug log
-
-        const product = await prisma.product.create({
-            data: productData
+            },
+            include: {
+                variants: true
+            }
         })
-
-        console.log('Created product:', product); // Debug log
-
+        
         return NextResponse.json(product, {status: 201})
     } catch (error) {
         console.error('Creation error: ', error)
         return NextResponse.json({
-            error: error instanceof Error ? error.message : 'Creation failed'
+            error: error instanceof Error ? error.message : 'Internal server error',
+            details: error instanceof Error ? error.stack : null
         },{status: 500})
     }
 }

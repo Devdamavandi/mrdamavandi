@@ -14,6 +14,7 @@ import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
 import { v4 as uuidv4 } from 'uuid'
+import { useSingleVariant, useVariants } from "@/hooks/useVariants";
 
 
 
@@ -34,11 +35,9 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
 
     const [productImages, setProductImages] = useState<string[]>(Array.isArray(defaultValues?.images) ? defaultValues.images.filter((img): img is string => !!img) : [])
     const [variants, setVariants] = useState<VariantFormValues[]>(
-        defaultValues?.variants?.map(v => ({
-            ...v,
-            id: v.id || uuidv4()
-        }))
-         || [])
+        defaultValues?.variants?.map(v => ({...v, id: v.id || uuidv4()})) || []
+    )
+    
     
     // 1.Initialize RHF with zod Resolver
     const {register, handleSubmit, formState: {errors}, setValue, watch, trigger} = useForm<ProductFormValues>({
@@ -49,10 +48,14 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         sku: '',
         price: 0,
         stock: 0,
+        variants: [],
         categoryId: undefined
     },
     })
 
+    useEffect(() => {
+        console.log(defaultValues?.variants)
+    }, [])
 
     // 2.Form submission handler
     const onSubmit = async (data: ProductFormValues) => {
@@ -61,19 +64,26 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             toast.error('Please generate an SKU first!')
             return
         }
-    // Convert string numbers to actual numbers
-    const processedData = {
-        ...data,
-        images: productImages,
-        price: Number(data.price),
-        stock: Number(data.stock),
-        categoryId: data.categoryId || null,
-        variants: variants.map(variant => ({
-            ...variant,
-            price: Number(variant.price),
-            stock: Number(variant.stock)
-        }))
-    }
+
+        const defaultVariant = variants.filter(v => v.isDefault)
+        if (defaultVariant.length > 1) {
+            toast.error('Only one variant can be marked as default')
+            return
+        }
+        
+        if (variants.length > 0 && defaultVariant.length === 0) {
+            variants[0].isDefault = true
+        }
+
+        // Convert string numbers to actual numbers
+        const processedData = {
+            ...data,
+            images: productImages,
+            price: Number(data.price),
+            stock: Number(data.stock),
+            categoryId: data.categoryId || undefined,
+            variants: variants
+        }
 
        try {
         if (defaultValues?.id) {
@@ -88,6 +98,9 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
        } catch (error) {
         console.error('Submission error: ', error)
         toast.error(defaultValues?.id ? 'failed to update product' : 'failed to create product')
+        if (error instanceof Error) {
+            console.error('Detailed error: ', error.message)
+        }
        }
     }
 
@@ -172,6 +185,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             {/* Variants */}
             <div className=" bg-gray-50 px-2 py-2 rounded-md outline-indigo-600 outline-2">
                 <div className="space-y-4">
+
                     {/* Add New Empty Variant */}
                     <div className="flex items-center justify-between">
                         <label className="font-medium text-indigo-500">Color Variants</label>
@@ -206,13 +220,13 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                 <div key={variant.id} className="flex items-center gap-4 justify-center">
                                     {/* Name */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-price">varaint name</label>
+                                        <label htmlFor="variant-price">variant name</label>
                                         <input
                                         type="text"
                                         id="variant-name"
                                         className="p-2 border-gray-200 border rounded w-30"
                                         value={variant.name || ''}
-                                        onChange={(e) => {updateVariant((variant.id || uuidv4()), 'name', e.target.value)}}
+                                        onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'name', e.target.value)}
                                         />
                                     </div>
                                     {/* Color */}
@@ -223,7 +237,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-color"
                                         className="p-2 border-gray-200 border rounded w-28"
                                         value={variant.attributes?.color || ''}
-                                        onChange={(e) => { updateVariantAttribute((variant.id || uuidv4()), 'color', e.target.value) }}
+                                        onChange={(e) => { updateVariantAttribute((variant.id ?? uuidv4()), 'color', e.target.value) }}
                                         />
                                     </div>
                                     {/* Stock */}
@@ -236,7 +250,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-stock"
                                         className="p-2 border-gray-200 border rounded w-24"
                                         value={variant.stock || 0}
-                                        onChange={(e) => {updateVariant((variant.id || uuidv4()), 'stock', Number(e.target.value))}}
+                                        onChange={(e) => {updateVariant((variant.id ?? uuidv4()), 'stock', Number(e.target.value))}}
                                         />
                                     </div>
                                     {/* Price */}
@@ -250,7 +264,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-price"
                                         className="p-2 border-gray-200 border rounded w-28"
                                         value={variant.price || 0}
-                                        onChange={(e) => { updateVariant((variant.id || uuidv4()), 'price', Number(e.target.value)) }}
+                                        onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'price', Number(e.target.value)) }}
                                         />
                                     </div>
                                     {/* Discount */}
@@ -263,7 +277,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-discount"
                                         className="p-2 border-gray-200 border rounded w-20"
                                         value={variant.discount || 0}
-                                        onChange={(e) => { updateVariant((variant.id || uuidv4()), 'discount', Number(e.target.value)) }}
+                                        onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'discount', Number(e.target.value)) }}
                                         />
                                     </div>
                                     {/* SKU */}
@@ -276,7 +290,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                                 id={`variant-sku-${variant.id}`}
                                                 value={variant.sku || ''}
                                                 className="w-full p-2 border border-gray-200 rounded-md text-sm h-10"
-                                                onChange={(e) => updateVariant(variant.id || uuidv4(), 'sku', e.target)}
+                                                onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'sku', e.target)}
                                             />
                                         </div>
                                             <button
@@ -295,7 +309,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                                 Generate
                                             </button>
                                     </div>
-                                    {/* Default */}
+                                    {/* Default radio */}
                                     <div className="flex flex-col items-center text-xs justify-center text-justify">
                                         <label htmlFor={`variant-default-${variant.id}`}>Set as default variant</label>
                                         <input
@@ -314,6 +328,8 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         }}
                                         />
                                     </div>
+
+                                    {/* remove */}
                                     <button
                                         onClick={() => {
                                             setVariants(variants.filter(v => v.id !== variant.id))
@@ -401,8 +417,6 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                     <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>
                  )}
             </div>
-
-            
 
 
             {/* Form Actions */}

@@ -2,12 +2,12 @@
 import {z} from 'zod'
 
 export const variantZodSchema = z.object({
-    id: z.string().optional(),
+    id: z.string(),
     name: z.string().min(1, "Name is required"),
     sku: z.string().min(3, "SKU must be at least 3 characters"),
     isDefault: z.boolean().optional(),
     price: z.number().min(0.01, "Price must be at least 0.01"),
-    discount: z.number().min(0.1, 'discount must be at least 0.1'),
+    discount: z.number().optional(),
     stock: z.number().int().min(0, "Stock cannot be negative"),
     attributes: z.object({
         color: z.string().min(1, "Color is required")
@@ -35,7 +35,7 @@ export const productZodSchema = z.object({
     originalPrice: z.number().optional(),
     hasFreeShipping: z.boolean().optional(),
     isOnSale: z.boolean().optional(),
-    isBestSeller: z.boolean().optional()
+    isBestSeller: z.boolean().optional(),
 })
 
 export const categoryZodSchema = z.object({
