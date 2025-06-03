@@ -7,7 +7,6 @@ import TopNavigationNav from "@/components/dashboard/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { totalcategories, totalCategoriesIncreasePercent, totalProductIncreasePercent, totalProducts } from "@/lib/dashboard-queries";
-import { useRouter } from "next/navigation";
 
 const DashboardPage = () => {
 

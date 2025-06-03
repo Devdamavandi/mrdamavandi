@@ -74,6 +74,7 @@ export async function POST(request: Request) {
                 stock: parseInt(body.stock) || 0,
                 images: body.images || [],
                 variants: {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     create: variantss.map((v: any) => ({
                         name: v.name,
                         sku: v.sku,
