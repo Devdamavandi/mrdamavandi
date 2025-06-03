@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Zap, Clock } from "lucide-react";
 import CountdownTimer from "./CountdownTimer";
 import TrimText from "@/lib/trimText";
-import { useEffect, useState } from "react";
 
 interface DealProductProps {
     id: string

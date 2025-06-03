@@ -2,11 +2,6 @@
 'use client'
 
 import { useSingleProduct } from "@/hooks/useProducts";
-import { ProductFormValues } from "@/types/zod";
-
-interface ProductValues {
-    defaultValues?: ProductFormValues
-}
 
 const SingleProductPage = ({params} : {params: {id: string}}) => {
 

@@ -16,7 +16,7 @@ const SearchBarComp = ({searchQuery} : searchProps) => {
                 type="text"
                 placeholder="Type Anything..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={() => setSearchTerm(searchQuery)}
              />
         </div>
      );

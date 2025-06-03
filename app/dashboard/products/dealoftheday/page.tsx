@@ -4,11 +4,10 @@
 import TopNavigationNav from "@/components/dashboard/top-nav";
 import { Button } from "@/components/ui/button";
 import { useCreateDeal, useProducts } from "@/hooks/useProducts";
-import { DealSchema, ProductFormValues } from "@/types/zod";
+import { DealSchema } from "@/types/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { string } from "zod";
 
 
 interface DealProductProps {
@@ -26,6 +25,8 @@ const DealOfTheDayForm = () => {
     const [listVisibility, setListVisibility] = useState(false)
 
     const {data: products, isLoading, error} = useProducts()
+
+   
 
     const {register, formState: {errors}, handleSubmit, reset} = useForm<DealSchema>({
         defaultValues: {
@@ -76,6 +77,9 @@ const DealOfTheDayForm = () => {
             toast.error('Failed to Set the Deal!!')
         }
     }
+
+     if (isLoading) return <div>Loading...</div>
+    if (error) return <div>Error... {error.message}</div>
 
     return ( 
         <div>

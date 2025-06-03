@@ -14,8 +14,6 @@ import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
 import { v4 as uuidv4 } from 'uuid'
-import { useSingleVariant, useVariants } from "@/hooks/useVariants";
-
 
 
 interface ProductFormProps {
@@ -106,6 +104,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
 
 
     // For Creating or Updating Variant
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateVariant = (id: string, field: string, value: any) => {
         setVariants(prevVariants => 
             prevVariants.map(v => 
@@ -114,6 +113,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     }
 
     // For Creating or Updating a Variant's Attribute
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateVariantAttribute = (id: string, attr: string, value: any) => {
         setVariants(prevVariants => 
             prevVariants.map(v => 

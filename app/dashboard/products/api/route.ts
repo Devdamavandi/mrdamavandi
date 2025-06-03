@@ -44,7 +44,8 @@ export async function POST(request: Request) {
        
 
         // If variants exist, but none is default, make first one default
-        const defaultVariants = variantss.filter(v => v.isDefault)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const defaultVariants = variantss.filter((v: { isDefault: any; }) => v.isDefault)
         if (variantss.length > 0 && defaultVariants.length === 0) {
             variantss[0].isDefault = true
         } else if (variantss.length > 0 && defaultVariants.length > 1) {

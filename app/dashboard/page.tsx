@@ -20,8 +20,6 @@ const DashboardPage = () => {
     const [categoriesCount, setCategoriesCount] = useState<number | null>(null)
     const [catsProgressPercentage, setCatsProgressPercentage] = useState<number | null>(null)
 
-    const router = useRouter()
-
 
     // fetch data for cards at page load or reload
     useEffect(() => {

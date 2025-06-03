@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { type LoginSchema, loginZodSchema } from "@/types/zod";
 import { useForm } from "react-hook-form";
 import { RxAvatar } from "react-icons/rx";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {FcGoogle} from 'react-icons/fc'
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -21,7 +21,6 @@ interface UserFormProps {
 
 
 const LoginPage = ({defaultValues}: UserFormProps) => {
-    const router = useRouter()
 
     const [isLoading, setIsLoading] = useState(false)
 

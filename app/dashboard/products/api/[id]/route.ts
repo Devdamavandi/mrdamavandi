@@ -46,6 +46,7 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
             categoryId: body.categoryId,
             variants: {
                 deleteMany: {},
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 create: body.variants.map((v: any) => ({
                     name: v.name,
                     sku: v.sku,

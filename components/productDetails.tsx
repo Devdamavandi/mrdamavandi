@@ -2,7 +2,6 @@
 
 import { Star } from "lucide-react"
 import ProductImageComponent from "./dashboard/ProductImage"
-import { Average } from "next/font/google"
 
 
 interface ProductDetailsProps {

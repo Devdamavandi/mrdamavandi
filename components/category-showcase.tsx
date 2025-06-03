@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import CategoryCard from "./categoryCard";
 import { useEffect, useState } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 
 const CategoryShowcase = () => {

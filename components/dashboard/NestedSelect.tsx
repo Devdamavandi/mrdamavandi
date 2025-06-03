@@ -2,9 +2,8 @@
 
 
 import { CategorySchema } from "@/types/zod"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { useState } from "react"
-import { ChevronRight, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from "../ui/menubar"
 
 interface NestedSelectProps {

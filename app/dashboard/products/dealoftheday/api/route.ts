@@ -59,6 +59,7 @@ export async function POST(req: Request) {
       
 
         return NextResponse.json(deal, {status: 201})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Deal Creation error: ', error)
         return NextResponse.json({

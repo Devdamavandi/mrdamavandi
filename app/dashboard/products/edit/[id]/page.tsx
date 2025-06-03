@@ -2,10 +2,7 @@
 'use client'
 
 import ProductForm from "@/components/dashboard/ProductForm";
-import { Button } from "@/components/ui/button";
 import { useSingleProduct } from "@/hooks/useProducts";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React from "react";
 
 interface PageProps {
@@ -16,7 +13,6 @@ interface PageProps {
 
 const EditProductPage = ({params} : PageProps) => {
 
-    const router = useRouter()
     
     // This is for reducing new NExtjs errors about params
     const {id} = React.use(params)

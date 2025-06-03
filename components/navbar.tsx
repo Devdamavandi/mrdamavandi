@@ -1,10 +1,9 @@
-import { useCart } from "@/stores/usecart"
 import Link from "next/link"
 import BasketPopover from "./basketPopover"
 
 export const Navbar = () => {
 
-  const count = useCart((state) => state.items.length)
+
   
   return (
     <nav className="sticky top-0 z-50 bg-white shadow py-2">

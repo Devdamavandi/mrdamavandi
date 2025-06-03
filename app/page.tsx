@@ -21,6 +21,7 @@ export default function Home() {
 
  useEffect(() => {
   setEndTime(deal?.dealEndTime ?? null)
+  console.log(endTime)
  }, [deal?.dealEndTime])
  
   return (
