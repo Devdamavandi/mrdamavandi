@@ -27,8 +27,8 @@ export default async function ProductPage({params}:ProductPageProps) {
         price: product.price,
         description: product.description,
         stock: product.stock,
-        discountPercentage: product.discountPercentage,
-        originalPrice: product.originalPrice,
+        discountPercentage: product.discountPercentage ?? 0,
+        originalPrice: product.originalPrice ?? 0,
         averageRating: product.averageRating,
         images: product.images,
         category: product.category ? { name: product.category.name } : undefined

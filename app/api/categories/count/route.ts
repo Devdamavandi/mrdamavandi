@@ -3,11 +3,13 @@ import { prisma } from "@/lib/db";
 import { CategorySchema } from "@/types/zod";
 import { NextResponse } from "next/server";
 
-function buildHierarchy(categories: CategorySchema[], parentId: string | null = null) {
+type CategoryWithChildren = Omit<CategorySchema, 'id'> & { id: string; children: CategoryWithChildren[] };
+function buildHierarchy(categories: CategorySchema[], parentId: string | null = null): CategoryWithChildren[] {
   return categories
-    .filter(category => category.parentId === parentId)
+    .filter(category => category.parentId === parentId && category.id)
     .map(category => ({
       ...category,
+      id: category.id!, // Assert that id exists since we filtered for it
       children: buildHierarchy(categories, category.id)
     }));
 }

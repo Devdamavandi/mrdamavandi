@@ -45,7 +45,7 @@ const ProductImageComponent = ({initialImages = [], onImagesChange, viewMode}: P
             const index = images.indexOf(selectedImage)
             if (index !== -1) setCurrentImageIndex(index)
         }
-    }, [selectedImage])
+    }, [images, selectedImage])
 
     // For Uploading Product Images to the Cloudinary
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +67,7 @@ const ProductImageComponent = ({initialImages = [], onImagesChange, viewMode}: P
 
             const newImages = [...images, ...uploadedUrls]
             setImages(newImages)
-            onImagesChange(newImages)
+            onImagesChange?.(newImages)
             if (!selectedImage) setSelectedImage(newImages[0])
         } finally {
             setIsUploading(false)
@@ -79,7 +79,7 @@ const ProductImageComponent = ({initialImages = [], onImagesChange, viewMode}: P
     const removeImage = (index: number) => {
         const newImages = images.filter((_, i) => i !== index)
         setImages(newImages)
-        onImagesChange(newImages)
+        onImagesChange?.(newImages)
         if (selectedImage === images[index]) {
             setSelectedImage(newImages[0] || null) // Update selected image if the removed image was selected
         }

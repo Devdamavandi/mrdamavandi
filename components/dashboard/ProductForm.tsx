@@ -9,7 +9,7 @@ import {toast} from 'react-toastify'
 import { Button } from "../ui/button";
 import { useCategories } from "@/hooks/useCategories";
 import ProductImageComponent from "./ProductImage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
@@ -51,9 +51,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     },
     })
 
-    useEffect(() => {
-        console.log(defaultValues?.variants)
-    }, [])
+   
 
     // 2.Form submission handler
     const onSubmit = async (data: ProductFormValues) => {
