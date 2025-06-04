@@ -24,19 +24,41 @@ export async function GET() {
     });
 
     // Calculate total products including all descendants for each category
-    const categoriesWithTotals = allCategories.map(category => {
-      const descendants = allCategories.filter(c => 
+    interface CategoryDb {
+      id: string;
+      name: string;
+      parentId: string | null;
+      path: string[];
+      _count: {
+        products: number;
+      };
+    }
+
+    interface CategoryWithTotals extends CategoryDb {
+      totalProducts: number;
+    }
+
+    // Add 'slug' property to each category (assuming you can derive it from name or another field)
+    type CategoryDbWithOptionalSlug = CategoryDb & { slug?: string };
+
+    const categoriesWithTotals: (CategoryWithTotals & { slug: string; parentId: string | undefined })[] = allCategories.map((category: CategoryDbWithOptionalSlug): CategoryWithTotals & { slug: string; parentId: string | undefined } => {
+      const descendants: CategoryDb[] = allCategories.filter((c: CategoryDb) => 
         c.path.includes(category.id) && c.id !== category.id
       );
       
-      const totalProducts = descendants.reduce(
-        (sum, descendant) => sum + descendant._count.products,
+      const totalProducts: number = descendants.reduce(
+        (sum: number, descendant: CategoryDb) => sum + descendant._count.products,
         category._count.products
       );
 
+      // If you have a slug field in your DB, use it here. Otherwise, generate from name.
+      const slug = category.slug ?? category.name.toLowerCase().replace(/\s+/g, '-');
+
       return {
         ...category,
-        totalProducts
+        parentId: category.parentId === null ? "" : category.parentId,
+        totalProducts,
+        slug
       };
     });
 

@@ -6,16 +6,14 @@ import { useSingleProduct } from "@/hooks/useProducts";
 import React from "react";
 
 interface PageProps {
-    params: Promise<{
-        id: string
-    }>
+    params: { id: string }
 }
 
 const EditProductPage = ({params} : PageProps) => {
 
     
     // This is for reducing new NExtjs errors about params
-    const {id} = React.use(params)
+    const {id} = params
     const {data: product, isLoading, error} = useSingleProduct(id)
 
     if (isLoading) return <div>Loading...</div>

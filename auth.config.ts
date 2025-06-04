@@ -34,15 +34,25 @@ export default {
     Credentials({
       async authorize(credentials) {
         const validatedFields = loginZodSchema.safeParse(credentials);
-        
+
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;
-          
+
           const user = await getUserByEmail(email);
           if (!user || !user.password) return null;
-          
+
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
+          if (passwordsMatch) {
+            // Only allow "ADMIN" or "USER" roles for NextAuth
+            const safeRole: "ADMIN" | "USER" = user.role === "ADMIN" ? "ADMIN" : "USER";
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              role: safeRole,
+            };
+          }
         }
         return null;
       }

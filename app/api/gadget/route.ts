@@ -18,7 +18,7 @@ export async function GET(){
 })
 
    const updatedCategories = await prisma.$transaction(
-      categories.map(({id, slug}) => {
+      categories.map(({id, slug}: {id: string; slug: string}) => {
          const cleanedSlug = slug
             .replace(/[^a-zA-Z]/g, ' ')
             .replace(/\s+/g, '-')

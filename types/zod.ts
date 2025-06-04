@@ -73,7 +73,7 @@ export const userZodSchema = z.object({
 
 export const loginZodSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email format"),
-    password: z.string().min(1, {message: "Password is required"})
+    password: z.string().min(1, "Password is required")
 })
 export const registerZodSchema = z.object({
     email: z.string().email(),

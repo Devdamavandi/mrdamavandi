@@ -3,9 +3,15 @@
 
 import { useSingleProduct } from "@/hooks/useProducts";
 
-const SingleProductPage = ({params} : {params: {id: string}}) => {
+interface PageProps {
+    params: { id: string }
+}
 
-    const {data: Product, isLoading, error} = useSingleProduct(params.id)
+export default function SingleProductPage({params} : PageProps) {
+
+    const { id } = params
+
+    const {data: Product, isLoading, error} = useSingleProduct(id)
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error...{error.message}</div>
 
@@ -18,4 +24,3 @@ const SingleProductPage = ({params} : {params: {id: string}}) => {
     )
 }
 
-export default SingleProductPage
