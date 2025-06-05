@@ -4,7 +4,7 @@ import axios from "axios"
 
 
 const VariantsClient = axios.create({
-    baseURL: 'http://localhost:3000/dashboard/variants/api',
+    baseURL: 'https://mrdamavandi.vercel.app/dashboard/variants/api',
     headers: {'Content-Type': 'application/json'}
 })
 
