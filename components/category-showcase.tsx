@@ -27,7 +27,6 @@ const CategoryShowcase = () => {
           <Carousel className="w-full">
             <CarouselContent>
               {categories
-                ?.filter((cat) => cat.depth !== undefined && cat.depth < 1)
                 .map((category) => (
                   <CarouselItem key={category.id} className="basis-[180px] sm:basis-[210px]">
                     <CategoryCard
