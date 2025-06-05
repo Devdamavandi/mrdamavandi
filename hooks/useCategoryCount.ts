@@ -37,7 +37,7 @@ export const useCategoryCounts = () => {
         const fetchCategories = async () => {
 
             try {
-                const response = await fetch('http://mrdamavandi.vercel.app/api/categories/count')
+                const response = await fetch('https://mrdamavandi.vercel.app/api/categories/count')
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`)
