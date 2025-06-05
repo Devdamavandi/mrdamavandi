@@ -2,7 +2,6 @@
 
 
 
-import { prisma } from "@/lib/db"
 import { useEffect, useState } from "react"
 
 
