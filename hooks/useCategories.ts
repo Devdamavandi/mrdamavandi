@@ -5,14 +5,17 @@ import { CategorySchema } from '@/types/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
-
+const apiClient = axios.create({
+    baseURL: "https://mrdamavandi.vercel.app",
+    headers: {'Content-Type': 'application/js'}
+})
 
 /* -------------------------------------------------------------------------------------------------------------------- */
 // GET ALL Categories
 
 
 const getCategories = async (): Promise<CategorySchema[]> => {
-    const res = await axios.get('/dashboard/categories/api/')
+    const res = await apiClient.get('/dashboard/categories/api/')
     return res.data
 }
 
@@ -31,7 +34,7 @@ export const useCategories = () => {
 
 const createCategory = async (category: Omit<CategorySchema, 'id'>) : Promise<CategorySchema> => {
 
-    const res = await axios.post('/dashboard/categories/api', category)
+    const res = await apiClient.post('/dashboard/categories/api', category)
     return res.data
 }
 
@@ -61,7 +64,7 @@ export const useCreateCategory = () => {
 
 const updateCategory = async (category: CategorySchema) : Promise<CategorySchema> => {
 
-    const res = await axios.put('/dashboard/categories/api', category)
+    const res = await apiClient.put('/dashboard/categories/api', category)
     return res.data
 }
 
