@@ -10,20 +10,7 @@ type CategoryWithCounts = {
     name: string
     slug: string
     image: string | null
-    path: string[]
-    parentId: string | null
-    depth: number
-    createdAt: Date | null
-    updatedAt: Date | null
-    _count: {
-        products: number
-    }
-    children: Array<{
-        _count: {
-            products: number
-        }
-    } & Omit<CategoryWithCounts, 'children'>>
-    totalProducts: number
+    productCount: number
 }
 
 export const useCategoryCounts = () => {
