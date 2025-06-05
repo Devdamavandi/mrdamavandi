@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 
 
 const apiClient = axios.create({
-    baseURL: '/dashboard/products/api',
+    baseURL: 'https://mrdamavandi.vercel.app/dashboard/products/api',
     headers: {'Content-Type': 'application/json'}
 })
 
@@ -51,7 +51,7 @@ export const useProducts = () => {
 // fetch Single product using the api server
 const getSingleProduct = async (id: string): Promise<ProductFormValues> => {
 
-    const res = await apiClient.get(`${id}`)
+    const res = await apiClient.get(`/${id}`)
     return res.data
 }
 
