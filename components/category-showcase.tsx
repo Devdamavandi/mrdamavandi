@@ -33,7 +33,7 @@ const CategoryShowcase = () => {
                       key={category.id}
                       name={category.name}
                       image={category.image || ''}
-                      count={category.totalProducts || 0}
+                      count={category.productCount || 0}
                       onClick={() => router.push(`/categories/${category.slug}`)}
                       className="cursor-pointer"
                     />
