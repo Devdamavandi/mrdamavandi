@@ -215,7 +215,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                         ) : (
                             // Set Variants to variant state Array
                             variants.map((variant) => (
-                                <div key={variant.id} className="flex items-center gap-4 justify-center">
+                                <div key={variant.id} className="flex gap-4 justify-center">
                                     {/* Name */}
                                     <div className="flex flex-col items-center justify-center gap-1">
                                         <label htmlFor="variant-price">variant name</label>
@@ -306,6 +306,18 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                             >
                                                 Generate
                                             </button>
+                                    </div>
+                                    {/* Sizes */}
+                                    <div className="flex flex-col items-center justify-center gap-1">
+                                        <label>size</label>
+                                        <input 
+                                        type="text" 
+                                        id="variant-size"
+                                        className="w-20 p-2 border border-gray-200"
+                                        value={variant.attributes?.size || ''}
+                                        onChange={(e) => {updateVariantAttribute((variant.id ?? uuidv4()), 'size', e.target.value)}
+                                        }
+                                        />
                                     </div>
                                     {/* Default radio */}
                                     <div className="flex flex-col items-center text-xs justify-center text-justify">

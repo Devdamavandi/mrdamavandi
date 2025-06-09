@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
 const apiClient = axios.create({
-    baseURL: "https://mrdamavandi.vercel.app",
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {'Content-Type': 'application/js'}
 })
 

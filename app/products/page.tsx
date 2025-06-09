@@ -11,7 +11,6 @@ import { isProductNew } from "@/lib/utils";
 const ProductsPage = () => {
 
     const {data: products = [], isLoading, error} = useProducts()
-    console.log(products)
    
     if (isLoading){
         return (

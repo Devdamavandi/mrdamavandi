@@ -146,8 +146,8 @@ const ProductCard = ({ id, name, hreff,  price, image, stock, averageRating = 0,
                                             <p className="text-amber-600 text-sm mb-1">{`only ${stock} left`}</p>
                                             <div className="w-full bg-gray-200 h-1.5 rounded-md">
                                                 <div className='bg-amber-500 h-1.5 rounded-full'
-                                                style = {{   width: `${(stock / 10) * 100}%`   }}
-                                                    ></div>
+                                                        style = {{   width: `${(stock / 10) * 100}%`   }}>
+                                                </div>
                                             </div>
                                         </div>
                                     ) : (

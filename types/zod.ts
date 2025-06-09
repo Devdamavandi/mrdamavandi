@@ -10,7 +10,8 @@ export const variantZodSchema = z.object({
     discount: z.number().optional(),
     stock: z.number().int().min(0, "Stock cannot be negative"),
     attributes: z.object({
-        color: z.string().min(1, "Color is required")
+        color: z.string().optional(),
+        size: z.string().optional()
     })
 })
 
@@ -21,6 +22,7 @@ export const productZodSchema = z.object({
     description: z.string().max(500).optional(),
     sku: z.string().min(3, "SKU must be at least 3 characters").max(50),
     price: z.number().min(0.01, 'Price must be at least 0.01'),
+    WishlistItem: z.string().optional(),
     stock: z.number().int().min(0, 'Stock cannot be negative'),
     images: z.array(z.string().optional()),
     variants: z.array(variantZodSchema).optional(),
@@ -57,7 +59,6 @@ export const categoryZodSchema = z.object({
     depth: z.number().optional() 
 })
 
-
 export const userZodSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(2).max(50),
@@ -68,6 +69,14 @@ export const userZodSchema = z.object({
     emailVerified: z.date().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional()
+})
+
+export const wishlistZodSchema = z.object({
+    id: z.string().optional(),
+    userId: z.string(),
+    user: z.string().optional(),
+    productId: z.string(),
+    product: z.string().optional()
 })
 
 
@@ -98,6 +107,7 @@ export const dealZodSchema = z.object({
 
 export type ProductFormValues = z.infer<typeof productZodSchema>
 export type CategorySchema = z.infer<typeof categoryZodSchema>
+export type WishlistSchema = z.infer<typeof wishlistZodSchema>
 export type UserSchema = z.infer<typeof userZodSchema>
 
 export type VariantFormValues = z.infer<typeof variantZodSchema>

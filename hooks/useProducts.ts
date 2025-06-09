@@ -67,20 +67,6 @@ export const useSingleProduct = (id: string) => {
 }
 
 
-// //**
-// // GET single Product BY Slug */
-// const getSingleProductBySlug = async (slug: string): Promise<ProductFormValues> => {
-//     const res = await axios.get(`/api/products/${slug}`)
-//     return res.data
-// }
-
-// export const useSingleProductBySlug = (slug: string) => {
-//     return useQuery<ProductFormValues>({
-//         queryKey: ['products'],
-//         queryFn: () => getSingleProductBySlug(slug),
-//         enabled: !!slug // only fetch slug exists
-//     })
-// }
 
 
 /* -------------------------------------------------------------------------------------------------------------------- */

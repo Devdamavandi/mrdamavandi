@@ -21,8 +21,7 @@ const BasketPopover = () => {
 
     return ( 
         <Popover>
-            <PopoverTrigger 
-            >
+            <PopoverTrigger>
                 <div className="relative cursor-pointer">
                     <p className="text-2xl hover:drop-shadow-[0_0_5px_rgba(213,184,255)]">🛒</p>
                 <span className="text-lg absolute left-2.5 -top-3">{count !== 0 && count}</span>

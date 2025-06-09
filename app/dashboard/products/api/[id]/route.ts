@@ -11,7 +11,8 @@ export async function GET(request: Request, {params} : {params: {id: string}}) {
             where: {id},
             include: {
                 category: true,
-                variants: true
+                variants: true,
+                WishlistItem: true
             }
         })
 
@@ -51,7 +52,7 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
                     name: v.name,
                     sku: v.sku,
                     price: v.price,
-                    stock: v.price,
+                    stock: v.stock,
                     discount: v.discount,
                     isDefault: v.isDefault,
                     attributes: v.attributes
