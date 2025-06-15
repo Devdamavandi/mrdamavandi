@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { useCreateWishlist, useDeleteWishlist } from "@/hooks/useWishlist"
 import { useSession } from "next-auth/react"
 import { toast } from "react-toastify"
+import Image from "next/image"
 
 interface ProductDetailsProps {
     product: {
@@ -27,9 +28,17 @@ interface ProductDetailsProps {
         category?: {
             name: string
         },
-        variants: VariantFormValues[]
+        variants: VariantFormValues[],
+        whatsInTheBox: {
+            html: string
+            text: string[]
+            images?: string[]
+        },
+        hasFreeShipping: boolean,
+        returnGuarantee: boolean
     }
 }
+
 
 const ProductDetails = ({product}: ProductDetailsProps) => {
 
@@ -54,6 +63,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
             setHeartClicked(match)
         }
     }, [product.WishlistItem, userID])
+
     const handleToggleWishlist = async () => {
         if (!userID) {
             toast.error('Please login first and then Add to Wishlist!!')
@@ -79,6 +89,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
             image: product.images[0]
         })
     }
+
 
     return ( 
         <div className="container flex flex-col gap-2">
@@ -247,10 +258,65 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                 </div>
             </div>
             {/* Description */}
-                    <div className="space-y-2">
-                        <h1 className="underline-offset-1 text-2xl mt-4">Description:</h1>
-                        <p className="pl-4">{product.description}</p>
-                    </div>
+            <div className="space-y-2">
+                <h1 className="underline-offset-1 text-2xl mt-4">Description:</h1>
+                <p className="pl-4">{product.description}</p>
+            </div>
+            {/* Whats In The Box */}
+            <div className="px-4">
+                {/* images and Texts*/}
+                <div className="
+                grid grid-cols-1 gap-4 items-center justify-between
+                sm:grid-cols-2
+                md:grid-cols-3
+                ">
+                    {product.whatsInTheBox?.images && product.whatsInTheBox?.images.map((img, index) => (
+                        <div key={index} className="flex flex-col justify-center items-center text-center">
+                                <Image
+                                    src={img}
+                                    alt={`image number ${index}`}
+                                    width={300}
+                                    height={300}
+                                    className="mt-4 object-contain w-full"
+                                />
+                            {/* Text */}
+                            <div className="
+                            grid grid-cols-1
+                            text-3xl mt-4 font-semibold
+                            sm:text-xl sm:text-nowrap
+                            md:text-lg lg:text-2xl
+                            ">
+                                <div key={index} >
+                                    <p>{product.whatsInTheBox?.text?.[index]}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    ))}
+                     
+                </div>
+            </div>
+            {/* Free Shipping & 30 day Guarantee */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mt-10 mx-4">
+                <div className="relative lg:w-2xl lg:h-48 shadow-sm rounded-md w-md h-48 sm:h-40">
+                    {product.hasFreeShipping && process.env.NEXT_PUBLIC_FREE_SHIPPING_IMAGE ? (
+                        <Image
+                            fill
+                            src={process.env.NEXT_PUBLIC_FREE_SHIPPING_IMAGE || ""}
+                            alt="free-shipping-image"
+                        />
+                    ) : null}
+                </div>
+                <div className="relative lg:w-2xl lg:h-48 shadow-sm rounded-md w-md h-48 sm:h-40">
+                    {product.returnGuarantee && process.env.NEXT_PUBLIC_GUARANTEE_IMAGE ? (
+                        <Image
+                            fill
+                            src={process.env.NEXT_PUBLIC_GUARANTEE_IMAGE || ""}
+                            alt="guarantee-image"
+                        />
+                    ): null}
+                </div>
+            </div>
         </div>
      );
 }

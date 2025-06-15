@@ -30,7 +30,8 @@ export default async function ProductPage({params}:ProductPageProps) {
         name: product.name,
         slug: product.slug || '',
         price: product.price,
-        WishlistItem: product.WishlistItem ?? [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        WishlistItem: (product.WishlistItem ?? []).map((item: any) => ({ userId: item.userId })),
         description: product.description,
         stock: product.stock,
         discountPercentage: product.discountPercentage ?? 0,
@@ -48,7 +49,26 @@ export default async function ProductPage({params}:ProductPageProps) {
             attributes: variant.attributes,
             isDefault: variant.isDefault ?? undefined,
             discount: variant.discount ?? undefined
-        }))
+        })),
+        whatsInTheBox: (() => {
+            if (
+                typeof product.whatsInTheBox === 'object' &&
+                product.whatsInTheBox !== null &&
+                'html' in product.whatsInTheBox &&
+                'text' in product.whatsInTheBox
+            ) {
+                // Ensure images is optional and is an array if present
+                const { html, text, images } = product.whatsInTheBox as { html: string; text: string[]; images?: string[] };
+                return {
+                    html: typeof html === 'string' ? html : '',
+                    text: Array.isArray(text) ? text : [],
+                    ...(Array.isArray(images) ? { images } : {})
+                };
+            }
+            return { html: '', text: [] };
+        })(),
+        hasFreeShipping: product.hasFreeShipping ?? false,
+        returnGuarantee: product.returnGuarantee ?? false
     }
 
     return (

@@ -22,6 +22,7 @@ model Product {
   price       Float
   stock       Int
   images      String[] // Array of image URLs
+  whatsInTheBox Json?
 
   // ========= NEW FIELDS FOR DISCOUNT/PRICING ===============
   originalPrice      Float? // Nullable (only set if product is onSale)
@@ -29,6 +30,7 @@ model Product {
   isOnSale           Boolean   @default(false) // Quick filter for discounted items
   saleEndsAt         DateTime? // Optional (for time-limited discounts)
   hasFreeShipping    Boolean?
+  returnGuarantee    Boolean?
   isBestSeller       Boolean?
 
   // Relations

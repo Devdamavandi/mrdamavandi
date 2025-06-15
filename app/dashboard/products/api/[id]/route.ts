@@ -57,7 +57,10 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
                     isDefault: v.isDefault,
                     attributes: v.attributes
                 }))
-            }
+            }, 
+            whatsInTheBox: body.whatsInTheBox,
+            hasFreeShipping: body.hasFreeShipping,
+            returnGuarantee: body.returnGuarantee
             // Omit createdAt and updatedAt as they're managed by Prisma
         },
         include: {

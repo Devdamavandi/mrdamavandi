@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 
 
 const apiClient = axios.create({
-    baseURL: 'https://mrdamavandi.vercel.app/dashboard/products/api',
+    baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/products/api`,
     headers: {'Content-Type': 'application/json'}
 })
 

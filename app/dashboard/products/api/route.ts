@@ -18,7 +18,6 @@ export async function GET(req: Request) {
         })
         if (!products) return {error: 'No products Found'}
 
-        console.log(JSON.stringify(products, null, 2))
         return NextResponse.json(products)
     } catch {
         return NextResponse.json({
@@ -88,7 +87,8 @@ export async function POST(request: Request) {
                         attributes: v.attributes
                     }))
                 },
-                ...(body.categoryId && { categoryId: body.categoryId }) // Only include if exists
+                ...(body.categoryId && { categoryId: body.categoryId }), // Only include if exists
+                whatsInTheBox: body.whatsInTheBox
             },
             include: {
                 variants: true

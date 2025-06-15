@@ -55,6 +55,7 @@ const ProductsPage = () => {
                         isNew={product.createdAt ? isProductNew(new Date(product.createdAt)) : false}
                         originalPrice={product.originalPrice}
                         hasFreeShipping={product.hasFreeShipping}
+                        returnGuarantee={product.returnGuarantee}
                         badge={product.isOnSale ? "Sale" : ""}
                         isBestseller={product.isBestSeller}
                         hreff={`/products/${product.slug}`}

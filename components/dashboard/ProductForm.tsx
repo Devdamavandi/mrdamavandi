@@ -14,7 +14,7 @@ import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
 import { v4 as uuidv4 } from 'uuid'
-
+import RichTextEditor from "../RichTextEditor";
 
 interface ProductFormProps {
     defaultValues?: ProductFormValues
@@ -36,6 +36,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         defaultValues?.variants?.map(v => ({...v, id: v.id || uuidv4()})) || []
     )
     
+
     
     // 1.Initialize RHF with zod Resolver
     const {register, handleSubmit, formState: {errors}, setValue, watch, trigger} = useForm<ProductFormValues>({
@@ -51,7 +52,12 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     },
     })
 
-   
+    const [whatInBox, setWhatsInBox] = useState<string>(
+        typeof defaultValues?.whatsInTheBox === 'string'
+        ? defaultValues.whatsInTheBox
+        : defaultValues?.whatsInTheBox?.html || ''
+    )
+ 
 
     // 2.Form submission handler
     const onSubmit = async (data: ProductFormValues) => {
@@ -71,6 +77,18 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             variants[0].isDefault = true
         }
 
+        // Extract text content for SEO
+        const extractTextContent = (html: string): string[] => {
+            const text = new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
+            return text.split('*').map(t => t.trim()).filter(s => s.length > 0)
+        }
+
+        // Extract image Urls for indexing 
+        const extractImageUrls = (html:string) => {
+            if (typeof window === 'undefined') return []
+            const doc = new DOMParser().parseFromString(html, 'text/html')
+            return Array.from(doc.querySelectorAll('img')).map(img => img.src)
+        }
         // Convert string numbers to actual numbers
         const processedData = {
             ...data,
@@ -78,13 +96,19 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             price: Number(data.price),
             stock: Number(data.stock),
             categoryId: data.categoryId || undefined,
-            variants: variants
+            variants: variants,
+            whatsInTheBox: {
+                html: whatInBox.replace(/src="data:image[^"]+"/g, ''), // Remove Base64
+                images: extractImageUrls(whatInBox), // Now contains CDN URLs only
+                text: extractTextContent(whatInBox).join('\n')
+            }
         }
 
        try {
         if (defaultValues?.id) {
             await updateProduct({...processedData, id: defaultValues.id})
             toast.success('Product Updated')
+            console.log('Return Guarantee Enabled: ', data.returnGuarantee)
         } else {
             await createProduct(processedData)
             toast.success('Product Created')
@@ -136,14 +160,17 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     }
 
 
+
     return ( 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 flex justify-between gap-4">
 
         {/* Data Section */}
-        <div className="flex-3">
+        <div className="flex-3 space-y-4">
+
+
             {/* Name Field */}
-                        <div>
-                <label htmlFor="name" className="block mb-2 font-medium">Product Name*</label>
+            <div>
+                <label htmlFor="name" className="block mb-2 font-semibold">Product Name*</label>
                 <input
                 id="name"
                 {...register('name')}
@@ -151,9 +178,11 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 placeholder="Enter product name"
                  />
             </div>
+
+
             {/* Description Field */}
             <div>
-                <label htmlFor="description" className="block mb-2 font-medium">Description*</label>
+                <label htmlFor="description" className="block mb-2 font-semibold">Description*</label>
                 <textarea
                 id="description"
                 rows={4}
@@ -161,6 +190,12 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 className={`w-full p-2 border rounded-md border-gray-300`}
                 placeholder="Enter product description"
                  />
+            </div>
+
+            {/* What's in the box */}
+            <div className="space-y-1 w-full">
+                <h1 className="font-semibold">{`What's in the box`}</h1>
+                <RichTextEditor value={whatInBox || ''} onChange={(content) => setWhatsInBox(content)} />
             </div>
 
             {/* Category SelectBox */}
@@ -179,6 +214,8 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                         <p className="text-sm mt-1">{errors.categoryId.message}</p>
                     )}
             </div>
+
+
 
             {/* Variants */}
             <div className=" bg-gray-50 px-2 py-2 rounded-md outline-indigo-600 outline-2">
@@ -427,7 +464,30 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                     <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>
                  )}
             </div>
-
+            
+            {/* Free-Shipping & 30 Day Guarantee */}
+            <div className="flex items-center gap-10">
+                {/* Free Shipping */}
+                <div className="flex items-center gap-1">
+                    <input
+                        type="checkbox"
+                        id="free-shipping"
+                        className="size-4"
+                        {...register('hasFreeShipping')}
+                    />
+                    <label htmlFor="free-shipping">Free Shipping</label>
+                </div>
+                {/* 30-Day Guarantee */}
+                <div className="flex items-center gap-1">
+                    <input
+                        type="checkbox"
+                        id="30-day-guarantee"
+                        className="size-4"
+                        {...register('returnGuarantee')}
+                     />
+                     <label htmlFor="30-day-guarantee">30 day Guarantee</label>
+                </div>
+            </div>
 
             {/* Form Actions */}
             <div className="flex gap-4 pt-4">

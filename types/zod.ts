@@ -36,8 +36,14 @@ export const productZodSchema = z.object({
     isNew: z.boolean().optional(),
     originalPrice: z.number().optional(),
     hasFreeShipping: z.boolean().optional(),
+    returnGuarantee: z.boolean().optional(), 
     isOnSale: z.boolean().optional(),
     isBestSeller: z.boolean().optional(),
+    whatsInTheBox: z.object({
+        html: z.string(),
+        text: z.string(),
+        images: z.array(z.string()).optional()
+    })
 })
 
 export const categoryZodSchema = z.object({

@@ -16,9 +16,10 @@ type ProductCardProps = {
     stock: number
     averageRating?: number
     badge?: string | '' | null
-    isNew?:boolean
-    isBestseller?:boolean
-    hasFreeShipping?:boolean
+    isNew?: boolean
+    isBestseller?: boolean
+    hasFreeShipping?: boolean
+    returnGuarantee?: boolean
     hreff?: string
 }
 
