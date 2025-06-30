@@ -11,6 +11,7 @@ import { useCreateWishlist, useDeleteWishlist } from "@/hooks/useWishlist"
 import { useSession } from "next-auth/react"
 import { toast } from "react-toastify"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 interface ProductDetailsProps {
     product: {
@@ -58,6 +59,8 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
     const {data: session} = useSession()
     const userID = session?.user?.id
 
+    const router = useRouter()
+
     useEffect(() => {
         if (userID && product.WishlistItem) {
             const match = product.WishlistItem?.some(item => item.userId === userID)
@@ -83,6 +86,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
     const handleAddToCart = () => {
         addItem({
             productId: product.id!,
+            variantId: product.variants.find((v) => v.isDefault)?.id || product.variants[0]?.id || "",
             name: product.name,
             price: product.price,
             quantity: 1,
@@ -199,7 +203,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     <button
                                     type="button"
                                     className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                    onClick={(e) => {e.preventDefault(); decreaseQuantity(product.id)}}
+                                    onClick={(e) => {e.preventDefault(); decreaseQuantity(product.id, (product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""))}}
                                     >
                                     -
                                     </button>
@@ -209,7 +213,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     <button
                                     type="button"
                                     className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                    onClick={(e) => {e.preventDefault(); increaseQuantity(product.id, product.stock)}}
+                                    onClick={(e) => {e.preventDefault(); increaseQuantity(product.id, (product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""), product.stock)}}
                                     >
                                     +
                                     </button>
@@ -257,6 +261,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                     </div>
                 </div>
 
+                {/* Top Right */}
                 <div className="flex flex-col border border-gray-300 shadow-md rounded-md flex-1 h-1/2 p-4 space-y-2">
                     <label className="text-sm">ships in:  <strong className="pl-1">{product?.ProductShipping.shipsIn}</strong></label>
                     <label className="text-sm">destination: <strong className="pl-1">{product?.ProductShipping.shipsTo}</strong></label>
@@ -266,7 +271,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                     <label>Total: {(items.reduce((sum, item) => sum + item.quantity * item.price, 0) + (Number(product.ProductShipping?.cost) || 0))}</label>
                     <button
                             type="button"
-                            onClick={handleAddToCart}
+                            onClick={() => router.push('/checkout')}
                             disabled={product.stock === 0}
                             className={product.stock !== 0 ?
                                 'bg-yellow-500 px-4 py-2 text-gray-900 rounded-md transition-opacity duration-300 text-sm font-medium hover:bg-amber-500/85 cursor-pointer mt-4'

@@ -69,6 +69,7 @@ export default function Home() {
                     <ProductCard 
                       key={product.id}
                       id={product.id ?? ''}
+                      variantId={product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""}
                       name={product.name}
                       image={product.images?.[0] || '/default-image.jpg'}
                       price={product.price}

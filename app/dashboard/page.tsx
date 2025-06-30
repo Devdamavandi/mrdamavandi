@@ -79,6 +79,12 @@ const DashboardPage = () => {
                                             href: "/dashboard/categories"
                                         },
                                         {
+                                            title: "Orders",
+                                            icon: "orders",
+                                            variant: "default",
+                                            href: "/dashboard/orders"
+                                        },
+                                        {
                                             title: "Customers",
                                             icon: "customers",
                                             variant: "default",
@@ -89,7 +95,7 @@ const DashboardPage = () => {
                                             icon: "settings",
                                             variant: "default",
                                             href: "/dashboard/settings"
-                                        },
+                                        }
                                     ]}
                                 />
                             </div>

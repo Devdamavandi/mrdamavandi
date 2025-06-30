@@ -21,10 +21,25 @@ type ProductCardProps = {
     hasFreeShipping?: boolean
     returnGuarantee?: boolean
     hreff?: string
+    variantId?: string
 }
 
 
-const ProductCard = ({ id, name, hreff,  price, image, stock, averageRating = 0, badge, originalPrice, isNew = false, isBestseller = false, hasFreeShipping} : ProductCardProps) => {
+const ProductCard = ({ 
+    id, 
+    name, 
+    hreff,  
+    price, 
+    image, 
+    stock, 
+    averageRating = 0, 
+    badge, 
+    originalPrice, 
+    isNew = false, 
+    isBestseller = false, 
+    hasFreeShipping,
+    variantId
+} : ProductCardProps) => {
 
     const discount = originalPrice ? 
                      Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -36,6 +51,7 @@ const ProductCard = ({ id, name, hreff,  price, image, stock, averageRating = 0,
     const handleAddToCart = () => {
         addItem({
             productId: id!,
+            variantId: variantId ?? "",
             name,
             price,
             quantity: 1,

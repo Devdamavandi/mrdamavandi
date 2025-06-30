@@ -6,8 +6,9 @@ import {
     Tags,
     Users,
     Settings,
-    Package
+    Package,
 } from 'lucide-react'
+import { FaBox } from 'react-icons/fa'
 
 export const Icons = {
     dashbaord: LayoutDashboard,
@@ -16,4 +17,5 @@ export const Icons = {
     customers: Users,
     settings: Settings,
     package: Package,
+    orders: FaBox,
 }

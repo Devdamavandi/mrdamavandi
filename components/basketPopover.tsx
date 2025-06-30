@@ -45,17 +45,17 @@ const BasketPopover = () => {
                             <div className="flex items-center gap-1 w-fit">
                                 <button
                                 className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                onClick={() => decreaseQuantity(item.productId)}
+                                onClick={() => decreaseQuantity(item.productId, item.variantId)}
                                 >-</button>
                                 <input type="number" className="w-10 text-right bg-white py-1" readOnly value={item.quantity}/>
                                 <button
                                 className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                onClick={() => increaseQuantity(item.productId, item.stock)}
+                                onClick={() => increaseQuantity(item.productId, item.variantId, item.stock)}
                                 >+</button>
                             </div>
                             <p>{TrimText(item.name, 42)}</p>
                             <button 
-                            onClick={() => removeItem(item.productId)}
+                            onClick={() => removeItem(item.productId, item.variantId)}
                             className="bg-red-500 hover:bg-red-600 transition cursor-pointer rounded-full flex items-center justify-center text-white w-4 h-4 ml-2 hover:">
                                 X
                             </button>
