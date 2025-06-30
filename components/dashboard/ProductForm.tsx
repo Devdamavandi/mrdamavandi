@@ -9,12 +9,13 @@ import {toast} from 'react-toastify'
 import { Button } from "../ui/button";
 import { useCategories } from "@/hooks/useCategories";
 import ProductImageComponent from "./ProductImage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
 import { v4 as uuidv4 } from 'uuid'
 import RichTextEditor from "../RichTextEditor";
+
 
 interface ProductFormProps {
     defaultValues?: ProductFormValues
@@ -23,6 +24,8 @@ interface ProductFormProps {
 
 const ProductForm = ({defaultValues} : ProductFormProps) => {
 
+    
+    
     const router = useRouter()
     const { mutate: createProduct, isPending: isCreating} = useCreateProduct()
     const {mutate: updateProduct, isPending: isUpdating} = useUpdateProduct()
@@ -31,33 +34,59 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     const { data: categories} = useCategories()
 
 
-    const [productImages, setProductImages] = useState<string[]>(Array.isArray(defaultValues?.images) ? defaultValues.images.filter((img): img is string => !!img) : [])
+    const [productImages, setProductImages] = useState<string[]>(Array.isArray(defaultValues?.images) ? defaultValues?.images.filter((img): img is string => !!img) : [])
     const [variants, setVariants] = useState<VariantFormValues[]>(
         defaultValues?.variants?.map(v => ({...v, id: v.id || uuidv4()})) || []
     )
-    
 
     
     // 1.Initialize RHF with zod Resolver
-    const {register, handleSubmit, formState: {errors}, setValue, watch, trigger} = useForm<ProductFormValues>({
-        defaultValues: defaultValues || 
-    {  
-        name: '',
-        description: '',
-        sku: '',
-        price: 0,
-        stock: 0,
-        variants: [],
-        categoryId: undefined
-    },
+    const {register, handleSubmit, formState: {errors}, setValue, watch, trigger, reset} = useForm<ProductFormValues>({
+        defaultValues: defaultValues ?? {  
+            name: '',
+            description: '',
+            sku: '',
+            price: 0,
+            stock: 0,
+            variants: [],
+            categoryId: undefined,
+            images: [],
+            whatsInTheBox: {
+                html: '',
+                text: '',
+                images: []
+            },
+            ProductShipping: {
+                shipsIn: '',
+                shipsFrom: '',
+                shipsTo: '',
+                carrier: '',
+                estimatedTime: '',
+                cost: 0,
+                trackingNote: ''
+            },
+            hasFreeShipping: false,
+            returnGuarantee: false
+        },
     })
+
+    useEffect(() => {
+        if (defaultValues) {
+            reset(defaultValues)
+        }
+    }, [defaultValues, reset])
+
 
     const [whatInBox, setWhatsInBox] = useState<string>(
         typeof defaultValues?.whatsInTheBox === 'string'
-        ? defaultValues.whatsInTheBox
+        ? defaultValues?.whatsInTheBox
         : defaultValues?.whatsInTheBox?.html || ''
     )
  
+    
+    if (!defaultValues) return <div>Loading product data...</div>
+
+    
 
     // 2.Form submission handler
     const onSubmit = async (data: ProductFormValues) => {
@@ -67,7 +96,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             return
         }
 
-        const defaultVariant = variants.filter(v => v.isDefault)
+        const defaultVariant = variants?.filter(v => v.isDefault)
         if (defaultVariant.length > 1) {
             toast.error('Only one variant can be marked as default')
             return
@@ -93,22 +122,30 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         const processedData = {
             ...data,
             images: productImages,
-            price: Number(data.price),
-            stock: Number(data.stock),
-            categoryId: data.categoryId || undefined,
+            price: Number(data?.price),
+            stock: Number(data?.stock),
+            categoryId: data?.categoryId || undefined,
             variants: variants,
             whatsInTheBox: {
                 html: whatInBox.replace(/src="data:image[^"]+"/g, ''), // Remove Base64
                 images: extractImageUrls(whatInBox), // Now contains CDN URLs only
                 text: extractTextContent(whatInBox).join('\n')
+            },
+            ProductShipping: {
+                shipsIn: data.ProductShipping?.shipsIn ?? '',
+                shipsFrom: data.ProductShipping?.shipsFrom ?? '',
+                shipsTo: data.ProductShipping?.shipsTo ?? '',
+                carrier: data.ProductShipping?.carrier ?? '',
+                estimatedTime: data.ProductShipping?.estimatedTime ?? '',
+                cost: parseFloat(data.ProductShipping?.cost as unknown as string) || 0,
+                trackingNote: data.ProductShipping?.trackingNote ?? ''
             }
         }
 
        try {
         if (defaultValues?.id) {
-            await updateProduct({...processedData, id: defaultValues.id})
+            await updateProduct({...processedData, id: defaultValues?.id})
             toast.success('Product Updated')
-            console.log('Return Guarantee Enabled: ', data.returnGuarantee)
         } else {
             await createProduct(processedData)
             toast.success('Product Created')
@@ -129,7 +166,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateVariant = (id: string, field: string, value: any) => {
         setVariants(prevVariants => 
-            prevVariants.map(v => 
+            prevVariants?.map(v => 
                 v.id === id ? {...v, [field]: value} : v
             ))
     }
@@ -138,20 +175,20 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateVariantAttribute = (id: string, attr: string, value: any) => {
         setVariants(prevVariants => 
-            prevVariants.map(v => 
-                v.id === id ? {...v, attributes: {...v.attributes, [attr]: value }} : v
+            prevVariants?.map(v => 
+                v?.id === id ? {...v, attributes: {...v.attributes, [attr]: value }} : v
             )
         )
     }
 
     const generateVariantSKU = async (variant: VariantFormValues) => {
-        if (variant.sku && variant.sku !== '') return variant.sku
+        if (variant?.sku && variant?.sku !== '') return variant?.sku
 
         try {
             return await generateSKU(
                 watch('name'),
                 watch('categoryId') || null,
-                variant.attributes
+                variant?.attributes
             )
         } catch (error) {
             console.error('Failed to generate variant SKU: ', error)
@@ -325,7 +362,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                                 id={`variant-sku-${variant.id}`}
                                                 value={variant.sku || ''}
                                                 className="w-full p-2 border border-gray-200 rounded-md text-sm h-10"
-                                                onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'sku', e.target)}
+                                                onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'sku', e.target.value)}
                                             />
                                         </div>
                                             <button
@@ -465,7 +502,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                  )}
             </div>
             
-            {/* Free-Shipping & 30 Day Guarantee */}
+            {/* Free-Shipping & 30 Day Guarantee CheckBoxes */}
             <div className="flex items-center gap-10">
                 {/* Free Shipping */}
                 <div className="flex items-center gap-1">
@@ -487,6 +524,42 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                      />
                      <label htmlFor="30-day-guarantee">30 day Guarantee</label>
                 </div>
+            </div>
+
+            {/* Shipping Info Entry */}
+            <div className="flex flex-col">
+                 <input 
+                    type="text"
+                    placeholder="Ships in"
+                    id="shipsin"
+                    {...register('ProductShipping.shipsIn')}
+                    className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                 <input 
+                    type="text"
+                    placeholder="Ships To"
+                    id="shipsto"
+                    {...register('ProductShipping.shipsTo')}
+                    className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                 <input 
+                    type="text"
+                    placeholder="Shipping Estimated time"
+                    {...register('ProductShipping.estimatedTime')}
+                    className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                 <input 
+                    type="text"
+                    placeholder="shipping cost"
+                    {...register('ProductShipping.cost')}
+                    className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
+                  />
+                 <input 
+                    type="text"
+                    placeholder="shipping carrier"
+                    {...register('ProductShipping.carrier')}
+                    className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
+                  />
             </div>
 
             {/* Form Actions */}

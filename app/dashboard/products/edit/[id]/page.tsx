@@ -29,7 +29,7 @@ const EditProductPage = ({params} : PageProps) => {
 
 
             <div className="bg-white p-6 rounded-lg shadow">
-                {product && <ProductForm defaultValues={product} />}
+                <ProductForm defaultValues={product} />
             </div>
         </div>
      )

@@ -3,7 +3,7 @@
 
 import { Star } from "lucide-react"
 import ProductImageComponent from "./dashboard/ProductImage"
-import { VariantFormValues } from "@/types/zod"
+import { ShippingSchema, VariantFormValues } from "@/types/zod"
 import { useCart } from "@/stores/usecart"
 import {Heart} from 'lucide-react'
 import { useEffect, useState } from "react"
@@ -35,7 +35,8 @@ interface ProductDetailsProps {
             images?: string[]
         },
         hasFreeShipping: boolean,
-        returnGuarantee: boolean
+        returnGuarantee: boolean,
+        ProductShipping: ShippingSchema
     }
 }
 
@@ -93,10 +94,9 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
 
     return ( 
         <div className="container flex flex-col gap-2">
+            {/* Top Section */}
             <div className="flex gap-2">
-                {/* Image */}
-                <div>
-                
+                <div className="flex-2">
                     <ProductImageComponent
                     key={product.id}
                     initialImages={product.images}
@@ -104,8 +104,8 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                     viewMode
                      />
                 </div>
-                {/* Product Info */}
-                <div>
+
+                <div className="flex-3">
                     <h1 className="max-w-xl font-medium/50 text-3xl text-justify tracking-tight pt-2">{product.name}</h1>
                     {/* Star and rating */}
                     <div className="flex mt-4 items-center gap-2">
@@ -216,7 +216,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                 </div>
                             ))}
                         </div>
-                        {/* Add To Cart */}
+                        {/* Add To Cart Section*/}
                         <div className="flex items-baseline-last gap-4">
                             <button
                             type="button"
@@ -256,6 +256,27 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                         </div>
                     </div>
                 </div>
+
+                <div className="flex flex-col border border-gray-300 shadow-md rounded-md flex-1 h-1/2 p-4 space-y-2">
+                    <label className="text-sm">ships in:  <strong className="pl-1">{product?.ProductShipping.shipsIn}</strong></label>
+                    <label className="text-sm">destination: <strong className="pl-1">{product?.ProductShipping.shipsTo}</strong></label>
+                    <label className="text-sm">Estimated time: <strong className="pl-1">{product?.ProductShipping.estimatedTime}</strong></label>
+                    <label className="text-sm">shipping cost: <strong className="pl-1">${product?.ProductShipping.cost}</strong></label>
+                    <hr className="text-gray-300 my-2"/>
+                    <label>Total: {(items.reduce((sum, item) => sum + item.quantity * item.price, 0) + (Number(product.ProductShipping?.cost) || 0))}</label>
+                    <button
+                            type="button"
+                            onClick={handleAddToCart}
+                            disabled={product.stock === 0}
+                            className={product.stock !== 0 ?
+                                'bg-yellow-500 px-4 py-2 text-gray-900 rounded-md transition-opacity duration-300 text-sm font-medium hover:bg-amber-500/85 cursor-pointer mt-4'
+                                 : 'bg-gray-200 rounded-md transition-opacity duration-300 text-sm font-medium px-4 py-2 text-white mt-4'
+                            }
+                            >
+                                Proceed To Checkout
+                    </button>
+                </div>
+
             </div>
             {/* Description */}
             <div className="space-y-2">

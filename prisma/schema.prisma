@@ -66,6 +66,10 @@ model Product {
   OrderItem    OrderItem[]
   DealOfTheDay DealOfTheDay[]
 
+  // Delivery relations
+  ProductShipping ProductShipping?
+
+
   @@index([name, categoryId]) // for frequently queried fields and speeding up the searches
 }
 
@@ -327,6 +331,23 @@ model DealOfTheDay {
   isActive           Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model ProductShipping {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  productId String @unique @db.ObjectId
+  product Product @relation(fields: [productId], references: [id])
+
+  shipsIn String    // "1-2 business days"
+  shipsFrom String  // "USA, Chicago"
+  shipsTo String    // "All Iran", "Worldwide"
+  estimatedTime String    // "3-5 business days"
+  carrier String?   // Optional default carrier (e.g., "Tipax")
+  trackingNote String?  // "Tracking via SMS or Email"
+  cost Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Enum for the new models

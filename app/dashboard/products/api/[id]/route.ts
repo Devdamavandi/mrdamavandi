@@ -12,11 +12,14 @@ export async function GET(request: Request, {params} : {params: {id: string}}) {
             include: {
                 category: true,
                 variants: true,
-                WishlistItem: true
+                WishlistItem: true,
+                ProductShipping: true
             }
         })
 
         if (!product) return NextResponse.json({error: 'Product not Found!'}, {status: 404})
+
+        
         return NextResponse.json(product)
     } catch {
         return NextResponse.json({
@@ -60,11 +63,34 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
             }, 
             whatsInTheBox: body.whatsInTheBox,
             hasFreeShipping: body.hasFreeShipping,
-            returnGuarantee: body.returnGuarantee
+            returnGuarantee: body.returnGuarantee,
+            ProductShipping: {
+                upsert: {
+                    update: {
+                        shipsIn: body.ProductShipping?.shipsIn || '',
+                        shipsFrom: body.ProductShipping?.shipsFrom || '',
+                        shipsTo: body.ProductShipping?.shipsTo || '',
+                        estimatedTime: body.ProductShipping?.estimatedTime || '',
+                        carrier: body.ProductShipping?.carrier || '',
+                        trackingNote: body.ProductShipping?.trackingNote || '',
+                        cost: body.ProductShipping?.cost || 0
+                    },
+                    create: {
+                        shipsIn: body.ProductShipping?.shipsIn || '',
+                        shipsFrom: body.ProductShipping?.shipsFrom || '',
+                        shipsTo: body.ProductShipping?.shipsTo || '',
+                        estimatedTime: body.ProductShipping?.estimatedTime || '',
+                        carrier: body.ProductShipping?.carrier || '',
+                        trackingNote: body.ProductShipping?.trackingNote || '',
+                        cost: body.ProductShipping?.cost || 0     
+                    }
+                }
+            }
             // Omit createdAt and updatedAt as they're managed by Prisma
         },
         include: {
-            variants: true
+            variants: true,
+            ProductShipping: true
         }
     })
 

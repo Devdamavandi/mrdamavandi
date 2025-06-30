@@ -2,7 +2,7 @@
 
 'use client'
 
-import { DealSchema, ProductFormValues } from "@/types/zod"
+import { DealSchema, ProductFormValues, productZodSchema } from "@/types/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axios from 'axios'
 import { useRouter } from "next/navigation"
@@ -146,7 +146,8 @@ const updateProduct = async (product: ProductFormValues): Promise<ProductFormVal
         ...product,
         price: Number(product.price),
         stock: Number(product.stock),
-        variants: product?.variants
+        variants: product?.variants,
+        ProductShipping: product?.ProductShipping
     }
 
 

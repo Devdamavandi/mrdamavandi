@@ -19,7 +19,8 @@ export default async function ProductPage({params}:ProductPageProps) {
                 select: { name: true }
             },
             variants: true,
-            WishlistItem: true
+            WishlistItem: true,
+            ProductShipping: true
         }
     })
 
@@ -68,7 +69,26 @@ export default async function ProductPage({params}:ProductPageProps) {
             return { html: '', text: [] };
         })(),
         hasFreeShipping: product.hasFreeShipping ?? false,
-        returnGuarantee: product.returnGuarantee ?? false
+        returnGuarantee: product.returnGuarantee ?? false,
+        ProductShipping: product.ProductShipping
+            ? {
+                shipsIn: product.ProductShipping.shipsIn,
+                shipsFrom: product.ProductShipping.shipsFrom,
+                shipsTo: product.ProductShipping.shipsTo,
+                estimatedTime: product.ProductShipping.estimatedTime,
+                carrier: typeof product.ProductShipping.carrier === "string" ? product.ProductShipping.carrier : "",
+                trackingNote: typeof product.ProductShipping.trackingNote === "string" ? product.ProductShipping.trackingNote : "",
+                cost: typeof product.ProductShipping.cost === "number" ? product.ProductShipping.cost : 0
+            }
+            : {
+                shipsIn: "",
+                shipsFrom: "",
+                shipsTo: "",
+                estimatedTime: "",
+                carrier: "",
+                trackingNote: "",
+                cost: 0
+            }
     }
 
     return (

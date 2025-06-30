@@ -15,6 +15,16 @@ export const variantZodSchema = z.object({
     })
 })
 
+export const productShippingSchema = z.object({
+    shipsIn: z.string(),
+    shipsFrom: z.string(),
+    shipsTo: z.string(),
+    estimatedTime: z.string(),
+    carrier: z.string().optional(),
+    trackingNote: z.string().optional(),
+    cost: z.number().optional()
+})
+
 export const productZodSchema = z.object({
     id: z.string().optional(), // Make ID optional for creation
     name: z.string().min(1,'Name is required').max(100),
@@ -43,8 +53,10 @@ export const productZodSchema = z.object({
         html: z.string(),
         text: z.string(),
         images: z.array(z.string()).optional()
-    })
+    }),
+    ProductShipping: productShippingSchema.optional()
 })
+
 
 export const categoryZodSchema = z.object({
     id: z.string().optional(),
@@ -115,6 +127,7 @@ export type ProductFormValues = z.infer<typeof productZodSchema>
 export type CategorySchema = z.infer<typeof categoryZodSchema>
 export type WishlistSchema = z.infer<typeof wishlistZodSchema>
 export type UserSchema = z.infer<typeof userZodSchema>
+export type ShippingSchema = z.infer<typeof productShippingSchema>
 
 export type VariantFormValues = z.infer<typeof variantZodSchema>
 

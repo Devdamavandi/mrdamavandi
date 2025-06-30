@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     try {
         const body = await request.json()
 
-        // Validate reequired fields
+        // Validate required fields
         if (!body.name || body.price === undefined || !body.categoryId) {
             return NextResponse.json({
                 error: 'Name, price, and categoryId are required'
@@ -88,10 +88,12 @@ export async function POST(request: Request) {
                     }))
                 },
                 ...(body.categoryId && { categoryId: body.categoryId }), // Only include if exists
-                whatsInTheBox: body.whatsInTheBox
+                whatsInTheBox: body.whatsInTheBox,
+                ProductShipping: body.ProductShipping
             },
             include: {
-                variants: true
+                variants: true,
+                ProductShipping: true
             }
         })
         

@@ -19,7 +19,7 @@ const ProductImageComponent = ({initialImages = [], onImagesChange, viewMode}: P
 
     const [images, setImages] = useState<string[]>(initialImages)
     const [isUploading, setIsUploading] = useState(false)
-    const [selectedImage, setSelectedImage] = useState<string | null>(images[0] || null) // Track the slected image
+    const [selectedImage, setSelectedImage] = useState<string | null>(images[0] || null) // Track the selected image
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0) // for moving through images in the bigger Modal View
 
@@ -108,7 +108,8 @@ const ProductImageComponent = ({initialImages = [], onImagesChange, viewMode}: P
                     )}                   
                 </div>
                 </DialogTrigger>
-
+                
+                {/* Modal Box View */}
                 <DialogContent className="max-w-[90vw] max-h-[90vh] sm:max-w-[60vw] sm:max-h-[80vh] bg-white "> 
                     <DialogTitle>Product Image</DialogTitle>
                     <div className="relative w-full h-[70vh]">
