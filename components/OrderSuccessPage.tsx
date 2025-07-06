@@ -24,7 +24,7 @@ type Order = {
 };
 
  const OrderSuccessPage = () => {
-    
+
     const searchParams = useSearchParams()
     const session_id = searchParams.get('session_id')
 
@@ -40,11 +40,11 @@ type Order = {
                 if (res.ok) {
                     const data = await res.json()
                     setOrder(data)
-                    setLoading(false)
+                    break
                 }
                 await new Promise(r => setTimeout(r, 1000)) // Wait 1 second before retry
+                setLoading(false)
             }
-            setLoading(false)
         }
 
         fetchOrder()
