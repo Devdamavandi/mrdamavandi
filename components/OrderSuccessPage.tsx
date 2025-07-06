@@ -42,7 +42,7 @@ type Order = {
                     setOrder(data)
                     break
                 }
-                await new Promise(r => setTimeout(r, 1000)) // Wait 1 second before retry
+                await new Promise(r => setTimeout(r, 3000)) // Wait 1 second before retry
                 setLoading(false)
             }
         }
