@@ -27,12 +27,12 @@ export async function POST(req:Request) {
         const sess = event.data.object as Stripe.Checkout.Session
 
         // Retrieve line items
-        const stripeSession = await stripe.checkout.sessions.retrieve(sess.id, { expand: ['line_items'] })
+        const line_items = await stripe.checkout.sessions.listLineItems(sess.id, { expand: ['data.price.product'] })
 
-        const items = (stripeSession.line_items?.data || []).map((li) => ({
-            productId: li.price?.product?.toString() || '',
-            variantId: li.price?.lookup_key || undefined,
-            quantity: li.quantity!,
+        const items = line_items.data.map((li) => ({
+            productId: li.price?.product.toString() || '',
+            variantId: li.price?.lookup_key || '',
+            quantity: li.quantity || 1,
             priceAtPurchase: (li.price?.unit_amount || 0) / 100,
         }))
 

@@ -40,11 +40,12 @@ type Order = {
                 if (res.ok) {
                     const data = await res.json()
                     setOrder(data)
-                    break
+                    setLoading(false)
+                    return
                 }
                 await new Promise(r => setTimeout(r, 3000)) // Wait 1 second before retry
-                setLoading(false)
             }
+            setLoading(false)
         }
 
         fetchOrder()
