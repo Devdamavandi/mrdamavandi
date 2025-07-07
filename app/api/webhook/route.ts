@@ -58,6 +58,7 @@ export async function POST(req:Request) {
             },
         })
     }
-
+    
+    console.log("🔔 Stripe Webhook triggered:", event.type)
     return NextResponse.json({ received: true })
 }
