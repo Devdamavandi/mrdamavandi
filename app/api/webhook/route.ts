@@ -45,8 +45,6 @@ export async function POST(req:Request) {
             data: {
                 orderNumber: sess.id,
                 userId: userId,
-                billingAddressId: '', // future: capture addresses
-                shippingAddressId: '',
                 subtotal: items.reduce((a, i) => a + i.priceAtPurchase * i.quantity, 0),
                 tax: 0,
                 shippingCost: 0,

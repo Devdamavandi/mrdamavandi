@@ -219,11 +219,11 @@ model Order {
 
   items OrderItem[]
 
-  shippingAddressId String  @db.ObjectId
-  shippingAddress   Address @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
+  shippingAddressId String?  @db.ObjectId
+  shippingAddress   Address? @relation("OrderShippingAddress", fields: [shippingAddressId], references: [id])
 
-  billingAddressId String  @db.ObjectId
-  billingAddress   Address @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
+  billingAddressId String?  @db.ObjectId
+  billingAddress   Address? @relation("OrderBillingAddress", fields: [billingAddressId], references: [id])
 
   subtotal     Float
   tax          Float
