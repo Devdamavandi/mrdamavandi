@@ -47,6 +47,8 @@ const ProductsPage = () => {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 my-2">
                 {products.map((product) => (
                     <ProductCard key={product.id} 
+                        id={product.id}
+                        variantId={product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""}
                         name={TrimText(product.name, 120)}
                         price={product.price}
                         image={product.images[0] || 'default-image.jpg'}

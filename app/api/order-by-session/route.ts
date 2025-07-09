@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
                 },
             },
             user: true,
+            shippingAddress: true
         },
     })
 

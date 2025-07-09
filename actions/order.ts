@@ -4,7 +4,15 @@ import { PaymentMethod } from "@prisma/client";
 import { ObjectId } from "bson";
 
 
-
+type addressProps = {
+    id: string
+    street: string
+    city: string
+    state: string
+    zipCode?: string
+    country: string
+    isDefault?: string
+}
 
 interface ItemsProps {
     items: {
@@ -13,17 +21,18 @@ interface ItemsProps {
         quantity: number
         priceAtPurchase: number
     }[];
-    billingAddressId: string
-    shippingAddressId: string
+    billingAddress: addressProps
+    shippingAddress: addressProps
     paymentMethod: string
     shippingCost: number
     discount?: number
 }
 
+
 export async function createOrder({
     items,
-    billingAddressId,
-    shippingAddressId,
+    billingAddress,
+    shippingAddress,
     paymentMethod,
     shippingCost,
     discount
@@ -38,12 +47,36 @@ export async function createOrder({
     const tax = 0 // For Now
     const total = subtotal + shippingCost - (discount || 0)
 
+    const billing = await prisma.address.create({
+        data: {
+            id: session?.user.id,
+            userId: session?.user.id,
+            street: billingAddress.street,
+            city: billingAddress.city,
+            state: billingAddress.state,
+            zipCode: billingAddress.zipCode || '',
+            country: billingAddress.country
+        }
+    })
+    
+    const shipping = await prisma.address.create({
+        data: {
+            id: session?.user.id,
+            userId: session?.user.id,
+            street: shippingAddress.street,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            zipCode: shippingAddress.zipCode || '',
+            country: shippingAddress.country
+        }
+    })
+
     const order = prisma.order.create({
         data: {
             userId: session?.user.id,
             orderNumber: new ObjectId().toHexString().slice(-8), // Unique readable ID
-            billingAddressId,
-            shippingAddressId,
+            billingAddressId: billing?.id,
+            shippingAddressId: shipping?.id,
             subtotal,
             tax,
             shippingCost,
@@ -82,9 +115,14 @@ export async function getUserOrders() {
 
 export async function getAllOrders() {
     return prisma.order.findMany({
+        where: {
+            shippingAddressId: { not: null },
+            billingAddressId: { not: null }
+        },
         include: {
             user: true,
             shippingAddress: true,
+            billingAddress: true,
             items: { include: { product: true, variant: true } }
         },
         orderBy: { createdAt: 'desc' },

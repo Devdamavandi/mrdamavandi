@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { items } = await req.json()
+    const { items, billingAddress, shippingAddress } = await req.json()
     if (!Array.isArray(items)) return NextResponse.json({ error: 'Invalid items' } , { status: 400 })
 
     interface CheckoutItem {
@@ -40,7 +40,11 @@ export async function POST(req: Request) {
         mode: 'payment',
         success_url: `${req.headers.get('origin')}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.get('origin')}/checkout?cancelled=true`,
-        metadata: { userId: session.user.id },
+        metadata: { 
+            userId: session.user.id,
+            billingAddress: JSON.stringify(billingAddress),
+            shippingAddress: JSON.stringify(shippingAddress)
+         },
     })
 
     return NextResponse.json({ sessionId: stripeSession.id })

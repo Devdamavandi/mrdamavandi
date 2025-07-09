@@ -24,6 +24,7 @@ type Order = {
 };
 
  const OrderSuccessPage = () => {
+    
 
     const searchParams = useSearchParams()
     const session_id = searchParams.get('session_id')

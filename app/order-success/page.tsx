@@ -1,13 +1,15 @@
 
 
-import { Suspense } from "react"
-import OrderSuccessPage from '@/components/OrderSuccessPage'
+import OrderSuccessPage from "@/components/OrderSuccessPage";
+import { Suspense } from "react";
 
 
-export default function OrderSuccess() {
+ export default function OrderSuccess () {
+
     return (
-         <Suspense fallback={<div>Loading...</div>}>
-            <OrderSuccessPage />
-         </Suspense>
+        <Suspense>
+            <OrderSuccessPage/>
+        </Suspense>
     )
-}
+ }
+  

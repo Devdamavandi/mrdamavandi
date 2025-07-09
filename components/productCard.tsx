@@ -5,6 +5,7 @@ import { useCart } from "@/stores/usecart"
 import { Heart, ShoppingCart, Star } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect } from "react"
 
 
 type ProductCardProps = {
@@ -47,6 +48,7 @@ const ProductCard = ({
 
     // Grab the addItem action
     const addItem = useCart((state) => state.addItem)
+    const items = useCart((state) => state.items)
 
     const handleAddToCart = () => {
         addItem({
@@ -59,6 +61,10 @@ const ProductCard = ({
             image
         })
     }
+
+    useEffect(() => {
+        console.log(items)
+    }, [items])
                      
     return ( 
                 <div 
