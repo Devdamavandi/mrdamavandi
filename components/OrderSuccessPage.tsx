@@ -36,8 +36,14 @@ type Order = {
         if (!session_id) return
 
         const fetchOrder = async (retries = 5) => {
+            let res
             for (let i = 0; i < retries; i++) {
-                const res = await fetch(`/api/order-by-session?session_id=${session_id}`)
+                if (session_id) {
+                    res = await fetch(`/api/order-by-session?session_id=${session_id}`)
+                } else {
+                    res = await fetch('/api/order-latest')
+                }
+                
                 if (res.ok) {
                     const data = await res.json()
                     setOrder(data)
