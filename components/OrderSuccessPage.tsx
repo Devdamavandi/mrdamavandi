@@ -14,6 +14,7 @@ type OrderItem = {
     priceAtPurchase: number;
 };
 
+
 type Order = {
     orderNumber: string;
     status: string;
@@ -25,7 +26,6 @@ type Order = {
 
  const OrderSuccessPage = () => {
     
-
     const searchParams = useSearchParams()
     const session_id = searchParams.get('session_id')
 
@@ -33,7 +33,6 @@ type Order = {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (!session_id) return
 
         const fetchOrder = async (retries = 5) => {
             let res

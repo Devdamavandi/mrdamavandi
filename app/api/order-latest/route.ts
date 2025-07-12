@@ -10,13 +10,15 @@ export async function GET() {
     const session  = await auth()
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized'}, {status: 401})
 
-    const order = await prisma.order.findFirst({
+    const latestOrder = await prisma.order.findFirst({
         where: { userId: session.user.id },
         orderBy: { createdAt: 'desc' },
         include: {
-            items: { include: { product: true, variant: true } }
+            items: { include: { product: true, variant: true } },
+            shippingAddress: true,
+            billingAddress: true
         }
     })
 
-    return NextResponse.json(order)
+    return NextResponse.json(latestOrder)
 }
