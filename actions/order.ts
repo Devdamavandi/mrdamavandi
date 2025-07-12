@@ -49,7 +49,6 @@ export async function createOrder({
 
     const billing = await prisma.address.create({
         data: {
-            id: session?.user.id,
             userId: session?.user.id,
             street: billingAddress.street,
             city: billingAddress.city,
@@ -61,7 +60,6 @@ export async function createOrder({
     
     const shipping = await prisma.address.create({
         data: {
-            id: session?.user.id,
             userId: session?.user.id,
             street: shippingAddress.street,
             city: shippingAddress.city,
