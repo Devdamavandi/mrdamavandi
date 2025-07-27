@@ -2,8 +2,11 @@
 
 
 'use client'
-import { Editor } from '@tinymce/tinymce-react';
 import { useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+
+const Editor = dynamic(() => import('@tinymce/tinymce-react').then(m => m.Editor), { ssr: false });
 
 export default function RichTextEditor({ value, onChange }: {
   value: string;
@@ -28,14 +31,12 @@ export default function RichTextEditor({ value, onChange }: {
         width: 700,
         menubar: true,
         plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table paste code help wordcount',
-          'media',
-          'codesample',
-          'emoticons',
-          'quickbars'
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+        'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount',
+        'codesample', 'emoticons', 'quickbars'
         ],
+
         toolbar: 'full',
         automatic_uploads: true,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

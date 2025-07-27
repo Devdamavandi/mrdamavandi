@@ -61,6 +61,7 @@ const ProductsPage = () => {
                         badge={product.isOnSale ? "Sale" : ""}
                         isBestseller={product.isBestSeller}
                         hreff={`/products/${product.slug}`}
+                        WishlistItem={Array.isArray(product.WishlistItem) ? product.WishlistItem : []}
                         />
               ))}
             </div>

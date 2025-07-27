@@ -13,6 +13,8 @@ interface categoryProps{
     onClick: () => void
     className: string
 }
+
+
 const CategoryCard = ({ name, image, count, onClick, className}: categoryProps) => {
 
     

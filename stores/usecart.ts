@@ -2,7 +2,7 @@
 
 
 import {create} from 'zustand'
-
+import { persist } from 'zustand/middleware'
 
 
 type CartItem = {
@@ -28,37 +28,63 @@ type CartState = {
 
 
 
-export const useCart = create<CartState>((set) => ({
-    items: [],
-    addItem: (item) => 
-        set((state) => {
-            
-            const existing = state.items.find((i) => (i.productId === item.productId && i.variantId === item.variantId))
-            if (existing) {
-                return {
-                    items: state.items.map((i) => 
-                        (i.productId === item.productId && i.variantId === item.variantId) 
-                    ? {...i, quantity: i.quantity + item.quantity} : i 
+export const useCart = create<CartState>()(
+    persist(
+        (set) => ({
+            items: [],
+            addItem: (item) =>
+                set((state) => {
+                    const existing = state.items.find(
+                        (i) =>
+                            i.productId === item.productId &&
+                            i.variantId === item.variantId
+                    );
+                    if (existing) {
+                        return {
+                            items: state.items.map((i) =>
+                                i.productId === item.productId &&
+                                i.variantId === item.variantId
+                                    ? { ...i, quantity: i.quantity + item.quantity }
+                                    : i
+                            ),
+                        };
+                    }
+                    return { items: [...state.items, item] };
+                }),
+            removeItem: (productId, variantId) =>
+                set((state) => ({
+                    items: state.items.filter(
+                        (i) =>
+                            !(
+                                i.productId === productId &&
+                                i.variantId === variantId
+                            )
                     ),
-                }
-            }
-            return { items: [...state.items, item] }
+                })),
+            clearCart: () => set({ items: [] }),
+            increaseQuantity: (productId, variantId, stock) =>
+                set((state) => ({
+                    items: state.items.map((item) =>
+                        item.productId === productId &&
+                        item.variantId === variantId &&
+                        item.quantity < stock
+                            ? { ...item, quantity: item.quantity + 1 }
+                            : item
+                    ),
+                })),
+            decreaseQuantity: (productId, variantId) =>
+                set((state) => ({
+                    items: state.items.map((item) =>
+                        item.productId === productId &&
+                        item.variantId === variantId &&
+                        item.quantity > 1
+                            ? { ...item, quantity: item.quantity - 1 }
+                            : item
+                    ),
+                })),
         }),
-    removeItem: (productId, variantId) => 
-        set((state) => ({
-            items: state.items.filter((i) => !(i.productId === productId && i.variantId === variantId))
-        })),
-    clearCart: () => set({ items: [] }),
-    increaseQuantity: (productId, variantId, stock) => 
-        set((state) => ({
-            items: state.items.map((item) => 
-                (item.productId === productId && item.variantId === variantId && item.quantity < stock) ? {...item, quantity: item.quantity + 1} : item
-            ),
-        })),
-    decreaseQuantity: (productId, variantId) => 
-        set((state) => ({
-            items: state.items.map((item) => 
-                (item.productId === productId && item.variantId === variantId && item.quantity > 1) ? {...item, quantity: item.quantity - 1} : item
-            ),
-        })),
-}))
+        {
+            name: "cart-storage", // unique name for storage
+        }
+    )
+);

@@ -14,7 +14,7 @@ const CreateProductPage = () => {
          
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow"><ProductForm/></div>
+            <div className="bg-white p-6 rounded-lg shadow"><ProductForm /></div>
         </div>
      )
 }

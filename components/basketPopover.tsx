@@ -7,6 +7,7 @@ import TrimText from "@/lib/trimText";
 import { useCart } from "@/stores/usecart";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 
 
@@ -19,6 +20,8 @@ const BasketPopover = () => {
     const ClearAll = useCart((state) => state.clearCart)
     const removeItem = useCart((state) => state.removeItem)
 
+    const router = useRouter()
+
     return ( 
         <Popover>
             <PopoverTrigger>
@@ -29,7 +32,7 @@ const BasketPopover = () => {
             </PopoverTrigger>
             <PopoverContent>
                 {count > 0 ? (
-                    <div className=" bg-white p-4 overflow-y-scroll w-xl border-gray-200 border rounded-sm mt-4">
+                    <div className="bg-white p-4 overflow-y-scroll w-xl border-gray-200 border rounded-sm mt-4">
                 {items.map((item, index) => (
                     <div key={index} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 py-2">
                             <Image
@@ -65,9 +68,13 @@ const BasketPopover = () => {
                         {/* Bottom Buttons */}
                         <div className="mt-4 flex justify-between">
                             <button className={`bg-red-500 hover:bg-rose-600 px-4 py-2 text-white rounded cursor-pointer`} onClick={ClearAll}>Clear All</button>
-                            <button 
-                            className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded cursor-pointer`} 
-                            disabled={count === 0}>Proceed To Checkout</button>
+                                <button
+                                    className={`px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded cursor-pointer`}
+                                    disabled={count === 0}
+                                    onClick={() => router.push('/checkout')}
+                                >
+                                    Proceed To Checkout
+                                </button>
                         </div>
                 </div>
                 ) : (

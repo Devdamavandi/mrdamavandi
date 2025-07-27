@@ -1,11 +1,15 @@
 
 
 
+import { useCreateWishlist, useDeleteWishlist } from "@/hooks/useWishlist"
 import { useCart } from "@/stores/usecart"
 import { Heart, ShoppingCart, Star } from "lucide-react"
+import { FaHeart } from 'react-icons/fa'
+import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
 
 
 type ProductCardProps = {
@@ -23,6 +27,7 @@ type ProductCardProps = {
     returnGuarantee?: boolean
     hreff?: string
     variantId?: string
+    WishlistItem: { userId: string }[]
 }
 
 
@@ -39,7 +44,8 @@ const ProductCard = ({
     isNew = false, 
     isBestseller = false, 
     hasFreeShipping,
-    variantId
+    variantId, 
+    WishlistItem
 } : ProductCardProps) => {
 
     const discount = originalPrice ? 
@@ -49,6 +55,32 @@ const ProductCard = ({
     // Grab the addItem action
     const addItem = useCart((state) => state.addItem)
     const items = useCart((state) => state.items)
+
+    const [heartClicked, setHeartClicked] = useState(false)
+    const {data: session} = useSession()
+    const userId = session?.user?.id
+    const {mutate: createWishlist, isPending} = useCreateWishlist()
+    const {mutate: deleteWishlist} = useDeleteWishlist()
+
+    useEffect(() => {
+        if (WishlistItem && userId) {
+            const match = WishlistItem?.some(item => item.userId === userId)
+            setHeartClicked(match)
+        }
+    }, [WishlistItem, userId])
+    const handleToggleWishList = async () => {
+        if (!userId) {
+            toast.error('Please login first and then Add To Wishlist!!')
+        }
+
+        if (!heartClicked) {
+            createWishlist({ productID: id ?? "", userID: userId ?? "" })
+            setHeartClicked(true)
+        } else {
+            deleteWishlist({ userID: userId ?? "", productID: id ?? "" })
+            setHeartClicked(false)
+        }
+    }
 
     const handleAddToCart = () => {
         addItem({
@@ -62,9 +94,6 @@ const ProductCard = ({
         })
     }
 
-    useEffect(() => {
-        console.log(items)
-    }, [items])
                      
     return ( 
                 <div 
@@ -134,11 +163,14 @@ const ProductCard = ({
                                         ))}
                                         <span className="text-xs text-gray-500 ml-1">({averageRating})</span>
                                     </div>
-                                    {/* Wishlist button (Top Right) */}
+                                    {/* Wishlist button (middle Right) */}
                                     <div>
-                                        <button className="lg:opacity-0
-                                        group-hover:opacity-100 transition-opacity duration-200 hover:text-rose-500 z-10 cursor-pointer">
-                                            <Heart className="w-5 h-5" />
+                                        <button className={`lg:opacity-0
+                                        group-hover:opacity-100 transition-opacity duration-200 hover:text-rose-500 z-10 cursor-pointer`}
+                                            onClick={handleToggleWishList}
+                                            disabled={isPending}
+                                        >
+                                           {heartClicked ? <FaHeart className="w-5 h-5 text-rose-500" /> : <Heart className="w-5 h-5" /> }
                                         </button>
                                     </div>
                                 </div>

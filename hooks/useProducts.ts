@@ -2,7 +2,7 @@
 
 'use client'
 
-import { DealSchema, ProductFormValues, productZodSchema } from "@/types/zod"
+import { DealSchema, ProductFormValues } from "@/types/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axios from 'axios'
 import { useRouter } from "next/navigation"
@@ -77,7 +77,6 @@ export const useSingleProduct = (id: string) => {
 const createProduct = async (product: Omit<ProductFormValues, 'id'>) : Promise<ProductFormValues> => {
     try {
         const res = await apiClient.post('/', product)
-        if (res.status !== 201) throw new Error('Failed to create product')
         return res.data
     } catch (error) {
         if (axios.isAxiosError(error)) {

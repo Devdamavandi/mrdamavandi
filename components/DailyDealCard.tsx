@@ -1,22 +1,44 @@
-import { useProducts } from "@/hooks/useProducts";
+import { useProducts, useSingleProduct } from "@/hooks/useProducts";
 import Image from "next/image";
 import { Zap, Clock } from "lucide-react";
 import CountdownTimer from "./CountdownTimer";
 import TrimText from "@/lib/trimText";
+import { useCart } from "@/stores/usecart";
+import Link from "next/link";
 
 interface DealProductProps {
     id: string
+    dealProductId: string
     discountRate?: number
     endTime?: Date
 }
 
-const DailyDealCard = ({id, discountRate, endTime}: DealProductProps) => {
+const DailyDealCard = ({id, dealProductId, discountRate, endTime}: DealProductProps) => {
 
     const {data: products} = useProducts()
     const IdenticalProduct = products?.find(p => p.id === id)
 
+    const addItem = useCart((state) => state.addItem)
+    const {data: Product} = useSingleProduct(dealProductId)
     
-   const discountedPrice = (IdenticalProduct?.price ?? 0) * (1 - (discountRate || 0))
+    const handleAddToCart = () => {
+        if (!Product) return;
+        addItem({
+            productId: Product.id || "",
+            variantId: Product.variants?.find(v => v.isDefault)?.id || Product.variants?.[0]?.id || "",
+            name: Product.name,
+            price: Product.price || 0,
+            quantity: 1,
+            stock: Product.stock ?? 0,
+            image: Product.images?.[0] || ""
+        })
+    }
+
+    const handleViewDetails = () => {
+
+    }
+    
+    const discountedPrice = (IdenticalProduct?.price ?? 0) * (1 - (discountRate || 0))
     return ( 
         <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-rose-500">
             <div className="flex items-center gap-2 mb-4">
@@ -65,12 +87,19 @@ const DailyDealCard = ({id, discountRate, endTime}: DealProductProps) => {
 
                     {/* ADD TO CART and PRODUCT DETAILS */}
                     <div className="flex flex-col sm-flex-row gap-3">
-                        <button className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-md font-medium flex-1 transition-colors cursor-pointer">
+                        <button className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-md font-medium flex-1 transition-colors cursor-pointer"
+                            onClick={handleAddToCart}
+                        >
                             Add to Cart
                         </button>
-                        <button className="border border-rose-600 text-rose-600 hover:bg-rose-50 px-6 py-3 rounded-md font-medium flex-1 transition-colors cursor-pointer">
-                            View Details
-                        </button>
+
+                        <Link href={`/products/${Product?.slug}`}
+                            className="border border-rose-600 text-rose-600 hover:bg-rose-50 px-6 py-3 rounded-md font-medium flex-1 transition-colors  text-center"
+                        >
+                            <button className="cursor-pointer">
+                                View Details
+                            </button>
+                        </Link>
                     </div>
 
 

@@ -2,29 +2,49 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 
+async function getAllCategoryIds(categoryId: string): Promise<string[]> {
+  const children = await prisma.category.findMany({
+    where: { parentId: categoryId },
+    select: { id: true }
+  })
+
+  let ids = [categoryId]
+  for (const child of children) {
+    const childIds = await getAllCategoryIds(child.id)
+    ids = ids.concat(childIds)
+  }
+
+  return ids
+}
+
+
+
+
 export async function GET(){
   try {
-    // Get only parent categories (where parentId is null) with thier direct product counts
+    // Get Only Top-Level Categories
     const parents = await prisma.category.findMany({
-      where: {parentId: null},
-      include: {
-        _count: {
-          select: {products: true}
-        },
-      },
-      orderBy: {
-        name: 'asc'
-      },
+      where: { parentId: null },
+      orderBy: { name: 'asc' }
     })
 
-    const simplifiedParents= parents.map(category => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      image: category.image,
-      productCount: category._count.products
-    }))
-    return NextResponse.json(simplifiedParents)
+    const categoriesWithCounts = await Promise.all(
+      parents.map(async (category) => {
+        const allCategoryIds = await getAllCategoryIds(category.id)
+        const productCount = await prisma.product.count({
+          where: { categoryId: { in: allCategoryIds } }
+        })
+        return {
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          image: category.image,
+          productCount,
+        }
+      })
+    )
+    
+    return NextResponse.json(categoriesWithCounts)
   } catch (error) {
     console.error('failed fetching categories: ', error)
     return NextResponse.json({ error: 'Failed to fetch categories' }, {status: 500})

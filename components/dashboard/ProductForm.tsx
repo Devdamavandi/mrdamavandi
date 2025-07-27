@@ -84,7 +84,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     )
  
     
-    if (!defaultValues) return <div>Loading product data...</div>
+    // if (!defaultValues) return <div>Loading product data...</div>
 
     
 
@@ -292,7 +292,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                 <div key={variant.id} className="flex gap-4 justify-center">
                                     {/* Name */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-price">variant name</label>
+                                        <label htmlFor="variant-price" className="text-xs">variant name</label>
                                         <input
                                         type="text"
                                         id="variant-name"
@@ -303,7 +303,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                     </div>
                                     {/* Color */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-color">variant color</label>
+                                        <label htmlFor="variant-color" className="text-xs">variant color</label>
                                         <input
                                         type="text"
                                         id="variant-color"
@@ -314,7 +314,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                     </div>
                                     {/* Stock */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-stock">stock</label>
+                                        <label htmlFor="variant-stock" className="text-xs">stock</label>
                                         <input
                                         type="number"
                                         placeholder="variant stock"
@@ -327,7 +327,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                     </div>
                                     {/* Price */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-price">price</label>
+                                        <label htmlFor="variant-price" className="text-xs">price</label>
                                         <input
                                         type="number"
                                         placeholder="variant price"
@@ -341,11 +341,12 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                     </div>
                                     {/* Discount */}
                                     <div className="flex flex-col items-center justify-center gap-1">
-                                        <label htmlFor="variant-price">discount</label>
+                                        <label htmlFor="variant-price" className="text-xs text-nowrap">price with discount</label>
                                         <input
                                         type="number"
                                         placeholder="variant discount"
                                         min={0}
+                                        step={0.001}
                                         id="variant-discount"
                                         className="p-2 border-gray-200 border rounded w-20"
                                         value={variant.discount || 0}
@@ -355,7 +356,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                     {/* SKU */}
                                     <div className="flex gap-1 items-end justify-center">
                                         <div className="flex-1 min-w-[120px]">
-                                            <label className="block text-xs mb-1">sku</label>
+                                            <label className="block text-xs mb-1 text-center">sku</label>
                                             <input
                                                 type="text"
                                                 readOnly={!!variant.sku}
@@ -475,8 +476,8 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 <input
                 id="price"
                 type="number"
-                step={'0.01'}
-                min={'0.01'}
+                step='0.01'
+                min='1'
                 {...register('price', {valueAsNumber: true})}
                 className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="0.00"

@@ -296,6 +296,7 @@ model Review {
   title    String
   comment  String?
   approved Boolean @default(false)
+  isChecked Boolean? @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -348,6 +349,14 @@ model ProductShipping {
   cost Float?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settings {
+  id String @id @default(auto()) @map("_id") @db.ObjectId // Primary key
+  key String  @unique                                     // for example "footerCategoriesCount"
+  value String                                            // Store as string; parse to number/JSON when needed
+  category String                                         // <-- e.g., "homepage", "footer", "seo"
   updatedAt DateTime @updatedAt
 }
 

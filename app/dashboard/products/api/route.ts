@@ -18,7 +18,9 @@ export async function GET(req: Request) {
         })
         if (!products) return {error: 'No products Found'}
 
-        return NextResponse.json(products)
+        // Convert to JSON-Safe Format
+        const safeProducts = JSON.parse(JSON.stringify(products))
+        return NextResponse.json(safeProducts)
     } catch {
         return NextResponse.json({
             error: 'Failed to fetch products'
@@ -68,36 +70,53 @@ export async function POST(request: Request) {
             }
         }
         
-        const product = await prisma.product.create ({
-            data: {
-                name: body.name,
-                description: body.description || '',
-                sku: await generateSKU(body.name, body.categoryId || null, null),
-                price: parseFloat(body.price),
-                stock: parseInt(body.stock) || 0,
-                images: body.images || [],
-                variants: {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    create: variantss.map((v: any) => ({
-                        name: v.name,
-                        sku: v.sku,
-                        price: v.price,
-                        stock: v.stock,
-                        isDefault: v.isDefault,
-                        attributes: v.attributes
-                    }))
-                },
-                ...(body.categoryId && { categoryId: body.categoryId }), // Only include if exists
-                whatsInTheBox: body.whatsInTheBox,
-                ProductShipping: body.ProductShipping
+        const productData = {
+            name: body.name,
+            description: body.description || '',
+            sku: await generateSKU(body.name, body.categoryId || null, null),
+            price: parseFloat(body.price),
+            stock: parseInt(body.stock) || 0,
+            images: body.images || [],
+            variants: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                create: variantss.map((v: any) => ({
+                    name: v.name,
+                    sku: v.sku,
+                    price: v.price,
+                    stock: v.stock,
+                    isDefault: v.isDefault,
+                    attributes: v.attributes
+                }))
             },
+            ...(body.categoryId && { categoryId: body.categoryId }), // Only include if exists
+            whatsInTheBox: body.whatsInTheBox,
+            ProductShipping: body.ProductShipping
+                ? {
+                    create: {
+                    shipsIn: body.ProductShipping?.shipsIn ?? "",
+                    shipsFrom: body.ProductShipping?.shipsFrom ?? "",
+                    shipsTo: body.ProductShipping?.shipsTo ?? "",
+                    carrier: body.ProductShipping?.carrier ?? "",
+                    estimatedTime: body.ProductShipping?.estimatedTime ?? "",
+                    cost: body.ProductShipping?.cost ?? 0,
+                    trackingNote: body.ProductShipping?.trackingNote ?? "",
+                    },
+                }
+            : undefined,
+        }
+
+        const product = await prisma.product.create({
+            data: productData,
             include: {
                 variants: true,
                 ProductShipping: true
             }
         })
+
+        // Convert to JSON-safe format
+        const safeProduct = JSON.parse(JSON.stringify(product))
         
-        return NextResponse.json(product, {status: 201})
+        return NextResponse.json({ success: true ,product: safeProduct}, {status: 201})
     } catch (error) {
         console.error('Creation error: ', error)
         return NextResponse.json({

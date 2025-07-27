@@ -2,10 +2,13 @@
 
 import CategoryShowcase from "@/components/category-showcase"
 import DailyDealCard from "@/components/DailyDealCard"
+import NewsletterForm from "@/components/NewsletterForm"
 import ProductCard from "@/components/productCard"
+import TestimonialCarouselPage from "@/components/TestimonialCarousel"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import ValueProp from "@/components/ValueProp"
 import { useDeal, useProducts } from "@/hooks/useProducts"
+import { roboto } from "@/lib/fonts"
 import { isProductNew } from "@/lib/utils"
 import { Headphones, RefreshCw, ShieldCheck, Truck } from "lucide-react"
 import Link from "next/link"
@@ -44,7 +47,7 @@ export default function Home() {
 
 
       {/* CATEGORY SHOWCASE ( Horizontal Scroll )*/}
-      <section className="py-12 container mx-auto px-4">
+      <section className="py-[5rem] container mx-auto px-4">
         <h2 className="text-3xl font-bold mt-2 text-center mb-2 ">Shop by Category</h2>
         <CategoryShowcase/>
       </section>
@@ -81,6 +84,7 @@ export default function Home() {
                       hasFreeShipping={product.hasFreeShipping}
                       isBestseller={product.isBestSeller}
                       hreff={`/products/${product.slug}`}
+                      WishlistItem={Array.isArray(product.WishlistItem) ? product.WishlistItem : []}
                     />
                 </CarouselItem>
                   ))}
@@ -93,7 +97,7 @@ export default function Home() {
       </section>
 
       {/* Value Propositions ( Trust Signals ) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t py-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t py-[5rem]">
               <ValueProp icon={<ShieldCheck/>} title="Secure Payments" />
               <ValueProp icon={<Truck/>} title="Free Shipping Over $50" />
               <ValueProp icon={<RefreshCw/>} title="Easy Returns" />
@@ -110,7 +114,12 @@ export default function Home() {
             </div>
 
             
-            {deal?.isActive ? (<DailyDealCard id={deal.dailyDealProduct.id} discountRate={deal.discountRate} endTime={deal.dealEndTime}/>)
+            {deal?.isActive ? (<DailyDealCard 
+              id={deal.dailyDealProduct.id} 
+              discountRate={deal.discountRate} 
+              endTime={deal.dealEndTime}
+              dealProductId={deal.dailyDealProduct.id}
+            />)
             : 
             (
                <div className="bg-white p-6 rounded-lg shadow-md text-center">
@@ -125,20 +134,21 @@ export default function Home() {
 
 
       {/* Customer Testimonials  */}
-        <section className="py-12">
+        <section className="py-20">
           <h2 className="text-3xl font-bold mb-8 text-center">What Our Customers Say</h2>
-          {/* <TestimonialCarousel testimonials={testimonials} /> */}
+          <TestimonialCarouselPage  />
         </section>
 
 
         {/* Newsletter Signup */}
-        <section>
-          <div>
-            <h2>Get 10% Off Your First Order</h2>
-            <p>Subscribe to our newsletter for exclusive deals</p>
-            {/* <NewsletterForm/> */}
+        <section className="w-1/2 py-16 place-self-center">
+          <div className="text-center flex flex-col items-center text-nowrap">
+            <h2 className={`${roboto.className} text-4xl pb-2`}>Get 10% Off Your First Order</h2>
+            <p className="pb-2">Subscribe to our Newsletter for Exclusive deals</p>
+            <NewsletterForm/>
           </div>
         </section>
+
     </div>
   )
 }

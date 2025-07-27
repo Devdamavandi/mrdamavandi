@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react"
 import { toast } from "react-toastify"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { FaHeart } from "react-icons/fa"
 
 interface ProductDetailsProps {
     product: {
@@ -186,7 +187,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                 )
                             }
                         </div>
-                        {/* SKU (PProduct Code) */}
+                        {/* SKU (Product Code) */}
                         <div className="text-sm">
                             {product.variants.map((variant, index) => (
                                 <div key={index}>{
@@ -198,8 +199,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                         </div>
                         {/* Quantity */}
                         <div className="flex items-center w-fit gap-1">
-                            {items.map((item, index) => (
-                                <div key={index}>
+                                <div>
                                     <button
                                     type="button"
                                     className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
@@ -208,7 +208,18 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     -
                                     </button>
                 
-                                    <input type="number" className="w-12 text-right bg-white py-1" readOnly value={item.quantity}/>
+                                    <input
+                                        type="number"
+                                        className="w-12 text-right bg-white py-1"
+                                        readOnly
+                                        value={
+                                            items.find(
+                                                item =>
+                                                    item.productId === product.id &&
+                                                    item.variantId === (product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || "")
+                                            )?.quantity ?? 0
+                                        }
+                                    />
                 
                                     <button
                                     type="button"
@@ -218,7 +229,6 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     +
                                     </button>
                                 </div>
-                            ))}
                         </div>
                         {/* Add To Cart Section*/}
                         <div className="flex items-baseline-last gap-4">
@@ -246,7 +256,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                             >
                             {heartClicked ? (
                                 <>
-                                    <Heart size={'16px'}
+                                    <FaHeart size={'16px'}
                                     className={heartClicked ? 'text-red-500' : ''}/>
                                     Added to Wishlist
                                 </>

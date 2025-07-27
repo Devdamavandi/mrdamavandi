@@ -45,11 +45,6 @@ const Nav = ({ className, links, ...props}: NavProps) => {
                                         <Link href={item.href}>
                                             {Icon && <Icon className="mr-2 h-4 w-4" />}
                                             {item.title}
-                                            {item.label && (
-                                                <span>
-                                                  {item.label}  
-                                                </span>
-                                            )}
                                         </Link>
                                     </Button>
                                 )

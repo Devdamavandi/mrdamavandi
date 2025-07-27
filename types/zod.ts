@@ -97,6 +97,17 @@ export const wishlistZodSchema = z.object({
     product: z.string().optional()
 })
 
+export const reviewZodSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    title: z.string(),
+    comment: z.string(),
+    rating: z.number(),
+    product: productZodSchema,
+    user: userZodSchema,
+    approved: z.boolean().default(false),
+    isChecked: z.boolean().default(false)
+})
 
 export const loginZodSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email format"),
@@ -123,6 +134,13 @@ export const dealZodSchema = z.object({
     updatedAt: z.coerce.date().optional()
 })
 
+export const settingsZodSchema = z.object({
+    id: z.string(),
+    key: z.string(),
+    value: z.string(),
+    category: z.string()
+})
+
 export type ProductFormValues = z.infer<typeof productZodSchema>
 export type CategorySchema = z.infer<typeof categoryZodSchema>
 export type WishlistSchema = z.infer<typeof wishlistZodSchema>
@@ -130,8 +148,10 @@ export type UserSchema = z.infer<typeof userZodSchema>
 export type ShippingSchema = z.infer<typeof productShippingSchema>
 
 export type VariantFormValues = z.infer<typeof variantZodSchema>
+export type ReviewsSchema = z.infer<typeof reviewZodSchema>
 
 export type LoginSchema = z.infer<typeof loginZodSchema>
 export type RegisterSchema = z.infer<typeof registerZodSchema>
 
 export type DealSchema = z.infer<typeof dealZodSchema>
+export type SettingSchema = z.infer<typeof settingsZodSchema>

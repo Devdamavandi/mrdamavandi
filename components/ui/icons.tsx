@@ -8,7 +8,8 @@ import {
     Settings,
     Package,
 } from 'lucide-react'
-import { FaBox } from 'react-icons/fa'
+import { TbShoppingCartCheck } from "react-icons/tb";
+import { FaRegComments } from "react-icons/fa";
 
 export const Icons = {
     dashbaord: LayoutDashboard,
@@ -17,5 +18,6 @@ export const Icons = {
     customers: Users,
     settings: Settings,
     package: Package,
-    orders: FaBox,
+    orders: TbShoppingCartCheck,
+    reviews: FaRegComments
 }
