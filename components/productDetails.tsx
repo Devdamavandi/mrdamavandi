@@ -10,9 +10,9 @@ import { useEffect, useState } from "react"
 import { useCreateWishlist, useDeleteWishlist } from "@/hooks/useWishlist"
 import { useSession } from "next-auth/react"
 import { toast } from "react-toastify"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { FaHeart } from "react-icons/fa"
+import RichTextRenderer from "./RichTextRenderer"
 
 interface ProductDetailsProps {
     product: {
@@ -294,65 +294,30 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
 
             </div>
             {/* Description */}
-            <div className="space-y-2">
-                <h1 className="underline-offset-1 text-2xl mt-4">Description:</h1>
-                <p className="pl-4">{product.description}</p>
+            <div className="mt-6">
+                <h1 className="mb-4">Description:</h1>
+                {product.description ? (
+                    // If description is a string, render it directly; otherwise, pass to RichTextRenderer
+                    Array.isArray(product.description) ? (
+                        <RichTextRenderer content={product.description} />
+                    ) : (
+                        <p>{product.description}</p>
+                    )
+                ) : (
+                    <p>No description available</p>
+                )}
             </div>
             {/* Whats In The Box */}
             <div className="px-4">
-                {/* images and Texts*/}
-                <div className="
-                grid grid-cols-1 gap-4 items-center justify-between
-                sm:grid-cols-2
-                md:grid-cols-3
-                ">
-                    {product.whatsInTheBox?.images && product.whatsInTheBox?.images.map((img, index) => (
-                        <div key={index} className="flex flex-col justify-center items-center text-center">
-                                <Image
-                                    src={img}
-                                    alt={`image number ${index}`}
-                                    width={300}
-                                    height={300}
-                                    className="mt-4 object-contain w-full"
-                                />
-                            {/* Text */}
-                            <div className="
-                            grid grid-cols-1
-                            text-3xl mt-4 font-semibold
-                            sm:text-xl sm:text-nowrap
-                            md:text-lg lg:text-2xl
-                            ">
-                                <div key={index} >
-                                    <p>{product.whatsInTheBox?.text?.[index]}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    ))}
-                     
-                </div>
+                <h3>{`What's in the Box`}</h3>
+                <ul className="list-disc pl-6">
+                    {product.whatsInTheBox?.text?.map ?
+                    product.whatsInTheBox.text.map((item, index) => (
+                        <li key={index} className="">{item}</li>
+                    )) : <li className="text-sm">No items listed</li>}
+                </ul>
             </div>
-            {/* Free Shipping & 30 day Guarantee */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mt-10 mx-4">
-                <div className="relative lg:w-2xl lg:h-48 shadow-sm rounded-md w-md h-48 sm:h-40">
-                    {product.hasFreeShipping && process.env.NEXT_PUBLIC_FREE_SHIPPING_IMAGE ? (
-                        <Image
-                            fill
-                            src={process.env.NEXT_PUBLIC_FREE_SHIPPING_IMAGE || ""}
-                            alt="free-shipping-image"
-                        />
-                    ) : null}
-                </div>
-                <div className="relative lg:w-2xl lg:h-48 shadow-sm rounded-md w-md h-48 sm:h-40">
-                    {product.returnGuarantee && process.env.NEXT_PUBLIC_GUARANTEE_IMAGE ? (
-                        <Image
-                            fill
-                            src={process.env.NEXT_PUBLIC_GUARANTEE_IMAGE || ""}
-                            alt="guarantee-image"
-                        />
-                    ): null}
-                </div>
-            </div>
+            
         </div>
      );
 }

@@ -4,7 +4,8 @@ import { OrderStatus } from "@prisma/client"
 
 
 
-export async function POST(req:Request, { params }: { params: { id: string } }) {
+export async function POST(req:Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
 
     const data = await req.formData()
     const status = data.get('status') as string | null

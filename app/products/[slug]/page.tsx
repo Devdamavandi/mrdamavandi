@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import dynamic from "next/dynamic"
+import { client } from "@/sanity/lib/client"
+import { productByIdQuery } from "@/sanity/lib/queries"
+
 
 interface ProductPageProps {
     params: {
@@ -12,6 +15,7 @@ const ProductDetails = dynamic(() => import('@/components/productDetails'), { ss
 export default async function ProductPage({params}:ProductPageProps) {
 
     const {slug} = await params
+    
     const product = await prisma.product.findUnique({
         where: {slug},
         include: {
@@ -26,19 +30,25 @@ export default async function ProductPage({params}:ProductPageProps) {
 
     if (!product) return notFound()
 
+    
+    const sanityData =  await client.fetch(productByIdQuery, { id: product.sanityId })
+    if (!sanityData) return notFound()
+
+
+
     const transformedProduct = {
         id: product.id,
-        name: product.name,
-        slug: product.slug || '',
+        name: sanityData?.name,
+        slug: sanityData?.slug || '',
         price: product.price,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         WishlistItem: (product.WishlistItem ?? []).map((item: any) => ({ userId: item.userId })),
-        description: product.description,
+        description: sanityData?.richDescription,
         stock: product.stock,
         discountPercentage: product.discountPercentage ?? 0,
         originalPrice: product.originalPrice ?? 0,
         averageRating: product.averageRating,
-        images: product.images,
+        images: product.images ?? [],
         category: product.category ? { name: product.category.name } : undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         variants: (product.variants ?? []).map((variant: any) => ({
@@ -51,23 +61,7 @@ export default async function ProductPage({params}:ProductPageProps) {
             isDefault: variant.isDefault ?? undefined,
             discount: variant.discount ?? undefined
         })),
-        whatsInTheBox: (() => {
-            if (
-                typeof product.whatsInTheBox === 'object' &&
-                product.whatsInTheBox !== null &&
-                'html' in product.whatsInTheBox &&
-                'text' in product.whatsInTheBox
-            ) {
-                // Ensure images is optional and is an array if present
-                const { html, text, images } = product.whatsInTheBox as { html: string; text: string[]; images?: string[] };
-                return {
-                    html: typeof html === 'string' ? html : '',
-                    text: Array.isArray(text) ? text : [],
-                    ...(Array.isArray(images) ? { images } : {})
-                };
-            }
-            return { html: '', text: [] };
-        })(),
+        whatsInTheBox: sanityData?.whatsInTheBox || [],
         hasFreeShipping: product.hasFreeShipping ?? false,
         returnGuarantee: product.returnGuarantee ?? false,
         ProductShipping: product.ProductShipping
@@ -90,6 +84,7 @@ export default async function ProductPage({params}:ProductPageProps) {
                 cost: 0
             }
     }
+
 
     return (
         <div className="md: max-w-7xl lg:max-w-screen mx-auto p-4">

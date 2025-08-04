@@ -14,8 +14,9 @@ import NestedCategorySelect from "./NestedSelect";
 import { generateSKU } from "@/lib/sku-generator";
 import { VariantFormValues } from "@/types/zod";
 import { v4 as uuidv4 } from 'uuid'
-import RichTextEditor from "../RichTextEditor";
-
+import slug from 'slug'
+import Link from "next/link";
+import { fetchSanityData } from "@/sanity/lib/queries";
 
 interface ProductFormProps {
     defaultValues?: ProductFormValues
@@ -44,18 +45,12 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
     const {register, handleSubmit, formState: {errors}, setValue, watch, trigger, reset} = useForm<ProductFormValues>({
         defaultValues: defaultValues ?? {  
             name: '',
-            description: '',
             sku: '',
             price: 0,
             stock: 0,
             variants: [],
             categoryId: undefined,
             images: [],
-            whatsInTheBox: {
-                html: '',
-                text: '',
-                images: []
-            },
             ProductShipping: {
                 shipsIn: '',
                 shipsFrom: '',
@@ -76,12 +71,20 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         }
     }, [defaultValues, reset])
 
-
-    const [whatInBox, setWhatsInBox] = useState<string>(
-        typeof defaultValues?.whatsInTheBox === 'string'
-        ? defaultValues?.whatsInTheBox
-        : defaultValues?.whatsInTheBox?.html || ''
-    )
+    useEffect(() => {
+        async function syncSanity() {
+            if (defaultValues?.sanityId) {
+                const sanityData = await fetchSanityData(defaultValues.sanityId)
+                if (sanityData) {
+                    // Merge Sanity data into your form
+                    setValue("slug", sanityData.slug?.current || "")
+                    setValue("description", sanityData.richDescription || "")
+                }
+                console.log("Sanity Data(ProductForm.tsx): ", sanityData)
+            }
+        }
+        syncSanity()
+    }, [defaultValues?.sanityId, setValue])
  
     
     // if (!defaultValues) return <div>Loading product data...</div>
@@ -106,18 +109,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             variants[0].isDefault = true
         }
 
-        // Extract text content for SEO
-        const extractTextContent = (html: string): string[] => {
-            const text = new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
-            return text.split('*').map(t => t.trim()).filter(s => s.length > 0)
-        }
-
-        // Extract image Urls for indexing 
-        const extractImageUrls = (html:string) => {
-            if (typeof window === 'undefined') return []
-            const doc = new DOMParser().parseFromString(html, 'text/html')
-            return Array.from(doc.querySelectorAll('img')).map(img => img.src)
-        }
+ 
         // Convert string numbers to actual numbers
         const processedData = {
             ...data,
@@ -126,11 +118,6 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             stock: Number(data?.stock),
             categoryId: data?.categoryId || undefined,
             variants: variants,
-            whatsInTheBox: {
-                html: whatInBox.replace(/src="data:image[^"]+"/g, ''), // Remove Base64
-                images: extractImageUrls(whatInBox), // Now contains CDN URLs only
-                text: extractTextContent(whatInBox).join('\n')
-            },
             ProductShipping: {
                 shipsIn: data.ProductShipping?.shipsIn ?? '',
                 shipsFrom: data.ProductShipping?.shipsFrom ?? '',
@@ -142,12 +129,19 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             }
         }
 
+        const sluggifiedName = slug(data.name, { lower: true, replacement: '-'})
+
        try {
+
+      
         if (defaultValues?.id) {
             await updateProduct({...processedData, id: defaultValues?.id})
             toast.success('Product Updated')
         } else {
-            await createProduct(processedData)
+            await createProduct({
+                ...processedData,
+                slug: sluggifiedName,
+            })
             toast.success('Product Created')
         }
         router.push('/dashboard/products')
@@ -204,6 +198,9 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         {/* Data Section */}
         <div className="flex-3 space-y-4">
 
+            {/* Hidden fields for Update Sanity Data to Work! */}
+            <input type="hidden" {...register('slug')} />
+            <input type="hidden" {...register('description')} />
 
             {/* Name Field */}
             <div>
@@ -217,7 +214,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             </div>
 
 
-            {/* Description Field */}
+            {/* Description Field
             <div>
                 <label htmlFor="description" className="block mb-2 font-semibold">Description*</label>
                 <textarea
@@ -227,16 +224,17 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 className={`w-full p-2 border rounded-md border-gray-300`}
                 placeholder="Enter product description"
                  />
-            </div>
+            </div> */}
 
-            {/* What's in the box */}
+            {/* What's in the box
             <div className="space-y-1 w-full">
                 <h1 className="font-semibold">{`What's in the box`}</h1>
                 <RichTextEditor value={whatInBox || ''} onChange={(content) => setWhatsInBox(content)} />
-            </div>
+            </div> */}
 
             {/* Category SelectBox */}
             <div className="my-4 mb-6">
+                <p className="text-sm mb-2">Select category:</p>
                 <NestedCategorySelect 
                     categories={categories || []}
                     value={watch('categoryId') || ''}
@@ -307,7 +305,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         <input
                                         type="text"
                                         id="variant-color"
-                                        className="p-2 border-gray-200 border rounded w-28"
+                                        className="p-2 border-gray-200 border rounded w-20"
                                         value={variant.attributes?.color || ''}
                                         onChange={(e) => { updateVariantAttribute((variant.id ?? uuidv4()), 'color', e.target.value) }}
                                         />
@@ -320,7 +318,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         placeholder="variant stock"
                                         min={0}
                                         id="variant-stock"
-                                        className="p-2 border-gray-200 border rounded w-24"
+                                        className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.stock || 0}
                                         onChange={(e) => {updateVariant((variant.id ?? uuidv4()), 'stock', Number(e.target.value))}}
                                         />
@@ -334,7 +332,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         min={0}
                                         step={0.01}
                                         id="variant-price"
-                                        className="p-2 border-gray-200 border rounded w-28"
+                                        className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.price || 0}
                                         onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'price', Number(e.target.value)) }}
                                         />
@@ -348,7 +346,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         min={0}
                                         step={0.001}
                                         id="variant-discount"
-                                        className="p-2 border-gray-200 border rounded w-20"
+                                        className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.discount || 0}
                                         onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'discount', Number(e.target.value)) }}
                                         />
@@ -388,7 +386,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         <input 
                                         type="text" 
                                         id="variant-size"
-                                        className="w-20 p-2 border border-gray-200"
+                                        className="w-12 p-2 border border-gray-200"
                                         value={variant.attributes?.size || ''}
                                         onChange={(e) => {updateVariantAttribute((variant.id ?? uuidv4()), 'size', e.target.value)}
                                         }
@@ -561,6 +559,17 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                     {...register('ProductShipping.carrier')}
                     className="p-2 mb-2 border border-gray-300 rounded-md w-1/2"
                   />
+            </div>
+
+            {/* Edit Product Sanity Data */}
+            <div>
+                {defaultValues?.sanityId && (
+                    <Link
+                    href={`/studio/structure/productContent;${defaultValues.sanityId}`}
+                    target="_blank"
+                    className="text-blue-500 hover:underline"
+                    >Edit other data</Link>
+                )}
             </div>
 
             {/* Form Actions */}

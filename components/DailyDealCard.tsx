@@ -34,9 +34,6 @@ const DailyDealCard = ({id, dealProductId, discountRate, endTime}: DealProductPr
         })
     }
 
-    const handleViewDetails = () => {
-
-    }
     
     const discountedPrice = (IdenticalProduct?.price ?? 0) * (1 - (discountRate || 0))
     return ( 

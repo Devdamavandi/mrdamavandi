@@ -43,6 +43,7 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
         data: {
             // Explicitly specify only updatable fields
             name: body.name,
+            slug: body.slug,
             description: body.description,
             price: body.price,
             stock: body.stock,
@@ -101,10 +102,12 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
             )
         }
         return NextResponse.json(product)
-    } catch{
+    } catch(error){
+        console.error('Failed to update the product: ', error)
         return NextResponse.json({
-            error: 'Failed to update the product'
-        },{status: 500})
+            error: 'Failed to update the product',
+            details: error instanceof Error ? error.message : error
+        }, { status: 500 })
     }
 }
 

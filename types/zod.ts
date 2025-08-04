@@ -27,6 +27,7 @@ export const productShippingSchema = z.object({
 
 export const productZodSchema = z.object({
     id: z.string().optional(), // Make ID optional for creation
+    sanityId: z.string().optional(),
     name: z.string().min(1,'Name is required').max(100),
     slug: z.string().optional(),
     description: z.string().max(500).optional(),

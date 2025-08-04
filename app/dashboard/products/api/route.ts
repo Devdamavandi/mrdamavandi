@@ -1,7 +1,8 @@
 import {prisma} from "@/lib/db";
 import { generateSKU } from "@/lib/sku-generator";
+import { createSanityProductDoc } from "@/sanity/lib/server";
 import { NextResponse } from "next/server";
-
+import slug from "slug";
 
 // GET all product server code
 export async function GET(req: Request) {
@@ -36,6 +37,10 @@ export async function POST(request: Request) {
     try {
         const body = await request.json()
 
+        const sluggedName = body.slug ||  slug(body.name, { lower: true })
+
+        const sanityId = await createSanityProductDoc(body.name, sluggedName)
+        
         // Validate required fields
         if (!body.name || body.price === undefined || !body.categoryId) {
             return NextResponse.json({
@@ -72,6 +77,8 @@ export async function POST(request: Request) {
         
         const productData = {
             name: body.name,
+            sanityId,
+            slug: sluggedName,
             description: body.description || '',
             sku: await generateSKU(body.name, body.categoryId || null, null),
             price: parseFloat(body.price),

@@ -3,7 +3,8 @@ import { NextResponse } from "next/server"
 
 
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
 
     const data = await req.formData()
     const carrier = data.get('carrier') as string

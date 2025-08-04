@@ -54,7 +54,6 @@ const ProductCard = ({
 
     // Grab the addItem action
     const addItem = useCart((state) => state.addItem)
-    const items = useCart((state) => state.items)
 
     const [heartClicked, setHeartClicked] = useState(false)
     const {data: session} = useSession()

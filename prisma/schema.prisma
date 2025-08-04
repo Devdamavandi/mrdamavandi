@@ -16,9 +16,11 @@ datasource db {
 
 model Product {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sanityId   String?   // For Sanity integration, if applicable
+  // Product Details
   name        String
   slug        String? @unique
-  description String
+  description Json?
   price       Float
   stock       Int
   images      String[] // Array of image URLs
