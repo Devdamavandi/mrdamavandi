@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getActiveUserCount, getActiveUsersToday, userActive } from "@/lib/activeUsers";
+import redis from "@/lib/redis"; // Import your redis instance
 
+// Logging for Redis
+redis.on('error', (err: Error) => console.log('Redis Error:', err));
+redis.on('connect', () => console.log('Redis connected'));
 
 export async function POST(request: NextRequest) {
     const { guestId } = await request.json()
