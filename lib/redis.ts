@@ -2,7 +2,8 @@ import Redis from 'ioredis'
 
 const redis = process.env.REDIS_URL
   ? new Redis(process.env.REDIS_URL, {
-      tls: process.env.NODE_ENV === 'production' ? {} : undefined,
+      // Only use TLS if the URL starts with 'rediss://' 
+      tls: process.env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
       connectTimeout: 10000,
       lazyConnect: true,
       maxRetriesPerRequest: 3,
