@@ -55,8 +55,14 @@ export default defineType({
                             initialValue: 22  // or any defualt value
                         }
                     ] // No fields needed for a simpler spacer
-                 }
+                 },
             ],
+        }),
+        defineField({
+            name: 'noSpaceBetweenRichImages',
+            title: 'No Space Between Rich Description Images',
+            type: 'boolean',
+            description: 'Remove spaces between imaegs inside the rich description checked'
         }),
         defineField({
             name: 'images',

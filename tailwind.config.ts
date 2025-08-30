@@ -8,7 +8,9 @@ const config: Config = {
     './pages/**/*.{ts,tsx}',
     './lib/**/*.{ts,tsx}',
   ],
-  plugins: [],
+
+  plugins: [
+  ],
   // Add this for v4
   future: {
     hoverOnlyWhenSupported: true,

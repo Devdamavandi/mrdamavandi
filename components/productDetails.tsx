@@ -3,7 +3,7 @@
 
 import { Star } from "lucide-react"
 import ProductImageComponent from "./dashboard/ProductImage"
-import { ShippingSchema, VariantFormValues } from "@/types/zod"
+import { ProductFormValues, ReviewsSchema, ShippingSchema, VariantFormValues } from "@/types/zod"
 import { useCart } from "@/stores/usecart"
 import {Heart} from 'lucide-react'
 import { useEffect, useState } from "react"
@@ -13,6 +13,10 @@ import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
 import { FaHeart } from "react-icons/fa"
 import RichTextRenderer from "./RichTextRenderer"
+import ProductCard from "./productCard"
+import { isProductNew } from "@/lib/utils"
+import Image from "next/image"
+import { RxAvatar } from "react-icons/rx"
 
 interface ProductDetailsProps {
     product: {
@@ -30,6 +34,7 @@ interface ProductDetailsProps {
         category?: {
             name: string
         },
+        categoryId: string,
         variants: VariantFormValues[],
         whatsInTheBox: {
             html: string
@@ -39,6 +44,9 @@ interface ProductDetailsProps {
         hasFreeShipping: boolean,
         returnGuarantee: boolean,
         ProductShipping: ShippingSchema
+        noSpaceBetweenRichImages?: boolean
+        specs: {label: string, value: string}[]
+        reviews: ReviewsSchema[]
     }
 }
 
@@ -62,12 +70,31 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
 
     const router = useRouter()
 
+    const [relatedProducts, setRelatedProducts] = useState<ProductFormValues[]>([])
+
+    // For setting the heart clicked state
     useEffect(() => {
         if (userID && product.WishlistItem) {
             const match = product.WishlistItem?.some(item => item.userId === userID)
             setHeartClicked(match)
         }
     }, [product.WishlistItem, userID])
+
+    // for fetching the related product from the backend
+    useEffect(() => {
+        const fetchRelatedProducts = async () => {
+            const res = await fetch('/api/products/related', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ categoryId: product.categoryId, productId: product?.id || "" })
+            })
+            const data = await res.json()
+            if (res.ok) setRelatedProducts(data)
+        }
+        fetchRelatedProducts()
+    }, [product.categoryId, product.id])
+
+
 
     const handleToggleWishlist = async () => {
         if (!userID) {
@@ -152,17 +179,19 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                             )}
                         </div>
                         {/* Color */}
-                        <div className="flex gap-2 text-sm">
-                            <div className="flex flex-col">
-                                {
-                                product.variants.map((variant, index) => (
-                                    <div key={index} className="flex gap-4">
-                                        <p>{variant.attributes.color}</p>
-                                        <p>{variant.attributes.size}</p>
-                                    </div>
+                        <div className="text-sm">
+                            {
+                            product.variants.map((variant, index) => (
+                                <div key={index} className="flex gap-4 items-center">
+                                        {variant.attributes.color && (
+                                            <span className={`rounded-full w-8 h-8 border border-gray-300 mb-2`}
+                                            style={{ backgroundColor: variant.attributes.color }}
+                                        />
+                                        )}
+                                    <span>{variant.attributes.size}</span>
+                                </div>
                                 ))
                             }
-                            </div>
                         </div>
                         {/* Stock */}
                         <div>
@@ -294,12 +323,12 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
 
             </div>
             {/* Description */}
-            <div className="mt-6">
+            <div className="mt-16">
                 <h1 className="mb-4">Description:</h1>
                 {product.description ? (
                     // If description is a string, render it directly; otherwise, pass to RichTextRenderer
                     Array.isArray(product.description) ? (
-                        <RichTextRenderer content={product.description} />
+                    <RichTextRenderer content={product.description} noSpaceBetweenRichImages={product.noSpaceBetweenRichImages} />
                     ) : (
                         <p>{product.description}</p>
                     )
@@ -308,8 +337,8 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                 )}
             </div>
             {/* Whats In The Box */}
-            <div className="px-4">
-                <h3>{`What's in the Box`}</h3>
+            <div className="py-2">
+                <h3 className="">{`What's in the Box: `}</h3>
                 <ul className="list-disc pl-6">
                     {product.whatsInTheBox?.text?.map ?
                     product.whatsInTheBox.text.map((item, index) => (
@@ -317,7 +346,86 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                     )) : <li className="text-sm">No items listed</li>}
                 </ul>
             </div>
-            
+            {/* Specification */}
+            <div className="py-2">
+                <h2 className="pb-2 text-xl">Specifications: </h2>
+                <table>
+                   <tbody>
+                    {product?.specs?.map((spec, index) => (
+                        <tr key={index} className="border-b border-gray-300/50">
+                            <td className="py-2 text-gray-600 text-sm font-semibold">{spec.label}</td>
+                            <td className="py-2 text-gray-600 text-sm pl-4">{spec.value}</td>
+                        </tr>
+                    ))}
+                   </tbody>
+                </table>
+            </div>
+            {/* Related Products */}
+            <section className="border-t border-gray-300 mt-10 my-4">
+                <h2 className="font-bold mt-3 text-xl">Products Related to this item</h2>
+                <div className="xl:w-1/5 lg:w-1/4 md:w-1/3 sm:w-1/2 pt-4">
+                    {relatedProducts && relatedProducts?.map((relatedProduct) => (
+                        <ProductCard
+                            key={relatedProduct.id}
+                            name={relatedProduct.name}
+                            variantId={relatedProduct.variants?.find(v => v.isDefault)?.id || relatedProduct.variants?.[0]?.id || ""}
+                            image={relatedProduct.images[0] || 'default-image.jpg'}
+                            price={relatedProduct.price}
+                            averageRating={relatedProduct.averageRating}
+                            stock={relatedProduct.stock}
+                            isNew={relatedProduct.createdAt ? isProductNew(new Date(relatedProduct.createdAt)) : false}
+                            originalPrice={relatedProduct.originalPrice}
+                            hasFreeShipping={relatedProduct.hasFreeShipping}
+                            returnGuarantee={relatedProduct.returnGuarantee}
+                            badge={relatedProduct.isOnSale ? "Sale" : ''}
+                            isBestseller={relatedProduct.isBestSeller}
+                            hreff={`/products/${relatedProduct.slug}`}
+                            WishlistItem={Array.isArray(relatedProduct.WishlistItem) ? relatedProduct.WishlistItem : []}
+                        />
+                    ))}
+                </div>
+            </section>
+            {/* Reviews */}
+            <section className="border-t border-gray-200 my-4">
+                <h2 className="font-bold py-2 mb-6 text-lg">Reviews</h2>
+                <div>
+                    {product?.reviews && product?.reviews?.map((review) => (
+                        <div key={review?.id} className="text-sm">
+                            <div className="flex items-center gap-4">
+                                {review?.user?.image ? (
+                                    <Image 
+                                    src={review.user.image || '/default-avatar.png'}
+                                    width={46}
+                                    height={46}
+                                    alt={`reviewImage ${review.user.name}`}
+                                    className="object-cover rounded-full"
+                                />
+                                ) : (
+                                    <RxAvatar className="w-6 h-6" />
+                                )}
+                                <div>
+                                    <p className="font-semibold text-gray-600">{review.user.name}</p>
+                                    <p className="text-gray-600">{review.title}</p>
+                                </div>
+                            </div>
+                            <p className="pt-2 text-justify">{review.comment}</p>
+                            {/* User-Review Rating */}
+                            <div className="flex items-center gap-1 mt-2">
+                                <div className="flex text-gray-600 space-x-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            size={16}
+                                            className={`${ i < product.averageRating ? "text-yellow-400 fill-yellow-400" : 'text-gray-300'}`}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-xs text-gray-600 ml-1">({product.averageRating})</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
      );
 }

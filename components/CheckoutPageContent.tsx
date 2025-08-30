@@ -3,8 +3,6 @@
 
 'use client'
 
-
-
 import { useCart } from "@/stores/usecart"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
@@ -104,7 +102,7 @@ const CheckoutPageContent = () => {
                         productId: i.productId,
                         variantId: i.variantId,
                         price: i.price,
-                        quantity: i.quantity
+                        quantity: i.quantity,
                     }))
                  }),
                 headers: { "Content-Type": "application/json" }
@@ -244,6 +242,7 @@ const CheckoutPageContent = () => {
                     </div>
             
                     <label className="block mb-1">Choose Payment Method:</label>
+
                     <select
                         value={paymentMethod}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPaymentMethod(e.target.value as 'COD' | 'CARD')}
@@ -252,12 +251,13 @@ const CheckoutPageContent = () => {
                         <option value="COD">Pay on Delivery</option>
                         <option value="CARD">Pay Online (Credit Card) </option>
                     </select>
+                    
                 </div>
                 <div className="mb-2">Subtotal: ${subtotal}</div>
                 <div className="mb-2">Shipping: ${shipping}</div>
                 <div className="mb-4 font-bold">Total: ${total}</div>
             
-                <button onClick={handleValidateAndCheckout} className="w-full bg-black text-white py-2 rounded">
+                <button onClick={handleValidateAndCheckout} className="w-full bg-black text-white py-2 rounded cursor-pointer hover:bg-black/90">
                     {paymentMethod === 'COD' ? 'Place Order' : 'Pay with Card'}
                 </button>
             </div>

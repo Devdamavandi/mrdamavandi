@@ -25,6 +25,10 @@ export const productShippingSchema = z.object({
     cost: z.number().optional()
 })
 
+export const productCountSchema = z.object({
+    WishlistItem: z.number().optional()
+})
+
 export const productZodSchema = z.object({
     id: z.string().optional(), // Make ID optional for creation
     sanityId: z.string().optional(),
@@ -55,9 +59,12 @@ export const productZodSchema = z.object({
         text: z.string(),
         images: z.array(z.string()).optional()
     }),
-    ProductShipping: productShippingSchema.optional()
+    ProductShipping: productShippingSchema.optional(),
+    views: z.number().optional(),
+    _count: productCountSchema.optional(),
+    revenue: z.number().optional(),
+    purchaseCount: z.number().optional()
 })
-
 
 export const categoryZodSchema = z.object({
     id: z.string().optional(),
@@ -90,6 +97,18 @@ export const userZodSchema = z.object({
     updatedAt: z.date().optional()
 })
 
+export const addressSchema = z.object({
+    id: z.string().optional(),
+    userId: z.string(),
+    user: userZodSchema,
+    street: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+    country: z.string(),
+    isDefault: z.boolean().optional()
+})
+
 export const wishlistZodSchema = z.object({
     id: z.string().optional(),
     userId: z.string(),
@@ -114,6 +133,7 @@ export const loginZodSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email format"),
     password: z.string().min(1, "Password is required")
 })
+
 export const registerZodSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6, {message: 'Minimum 6 characters required!'}),
@@ -142,6 +162,41 @@ export const settingsZodSchema = z.object({
     category: z.string()
 })
 
+export const orderItemSchema = z.object({
+    id: z.string().optional(),
+    orderId: z.string(),
+    product: productZodSchema,
+    productId: z.string(),
+    variant: variantZodSchema.optional(),
+    variantId: z.string().optional(),
+    quantity: z.number(),
+    priceAtPurchase: z.number()
+})
+
+export const orderZodSchema = z.object({
+    id: z.string().optional(),
+    orderNumber: z.string(),
+    userId: z.string(),
+    user: userZodSchema.optional(),
+    items: z.array(orderItemSchema),
+    shippingAddressId: z.string().optional(),
+    shippingAddress: productShippingSchema,
+    billingAddressId: z.string().optional(),
+    billingAddress: addressSchema,
+    subtotal: z.number().optional(),
+    tax: z.number().optional(),
+    shippingCost: z.number(),
+    discount: z.number().optional(),
+    total: z.number(),
+    paymentMethod: z.enum(["CREDIT_CARD", "PAYPAL", "BANK_TRANSFER", "COD"]),
+    paymentStatus: z.enum(["PENDINF", "PAID", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED"]).optional(),
+    status: z.enum(["PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"]).optional(),
+    trackingNumber: z.string().optional(),
+    carrier: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional()
+})
+
 export type ProductFormValues = z.infer<typeof productZodSchema>
 export type CategorySchema = z.infer<typeof categoryZodSchema>
 export type WishlistSchema = z.infer<typeof wishlistZodSchema>
@@ -156,3 +211,5 @@ export type RegisterSchema = z.infer<typeof registerZodSchema>
 
 export type DealSchema = z.infer<typeof dealZodSchema>
 export type SettingSchema = z.infer<typeof settingsZodSchema>
+export type OrderSchema = z.infer<typeof orderZodSchema>
+export type AddressSchema = z.infer<typeof addressSchema>

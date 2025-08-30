@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { usePathname } from "next/navigation"
 import { Inter } from 'next/font/google'
 import FooterComponent from '@/components/ui/footer'
+import { useEffect } from 'react'
 
 const NoNavRoutes = [
 	"/dashboard",
@@ -26,6 +27,27 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
+
+	// send a heartBeat request to the activeUsers server to say that the user is still in the app
+	useEffect(() => {
+		let guestId = localStorage.getItem("guestId")
+		if (!guestId) {
+			guestId = crypto.randomUUID()
+			localStorage.setItem("guestId", guestId)
+		}
+		const sendHeartbeat = () => {
+			fetch("/api/active-user", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ guestId })
+			})
+		}
+
+		sendHeartbeat() // initial
+		const interval = setInterval(sendHeartbeat, 30000) // every 30 seconds
+
+		return () => clearInterval(interval)
+	}, [])
 
 	const pathname = usePathname()
 

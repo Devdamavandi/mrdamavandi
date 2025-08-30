@@ -1,10 +1,11 @@
 
 
 import { auth } from '@/auth'
+import { prisma } from '@/lib/db'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {apiVersion: '2025-06-30.basil'})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 
 export async function POST(req: Request) {
@@ -46,6 +47,34 @@ export async function POST(req: Request) {
             shippingAddress: JSON.stringify(shippingAddress)
          },
     })
+
+    const existingOrder= await prisma.order.findUnique({
+        where: { stripeSessionID: stripeSession.id }
+    })
+
+    // Create PENDING order immediately
+    if (!existingOrder) {
+        await prisma.order.create({
+            data: {
+                userId: session.user.id,
+                stripeSessionID: stripeSession.id,
+                subtotal: items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+                total: items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+                paymentStatus: "PENDING",
+                orderNumber: `ORD-${Date.now()}`, // Example order number
+                tax: 0, // Set appropriate tax value
+                shippingCost: 0, // Set appropriate shipping cost
+                paymentMethod: 'CREDIT_CARD', // Set appropriate payment method
+                items: {
+                    create: items.map(i => ({
+                        quantity: i.quantity,
+                        priceAtPurchase: i.price,
+                        product: { connect: { id: i.productId } }
+                    }))
+                }
+            }
+        })
+    }
 
     return NextResponse.json({ sessionId: stripeSession.id })
     } catch (error) {

@@ -4,7 +4,7 @@
 
 import {prisma} from "@/lib/db"
 
-
+/** TOTAL PRODUCTS */
 export const totalProducts  = async () => {
 
     const total = await prisma.product.count()
@@ -45,7 +45,7 @@ export const totalProductIncreasePercent = async () => {
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+/** TOTAL CATEGORIES */
 export const totalcategories = async () => {
 
     const totalCats = await prisma.category.count()
@@ -67,7 +67,7 @@ export const totalCategoriesIncreasePercent = async () => {
     })
 
     // Total Categories Now
-    const totalCategoriesNow = await prisma.category.count()
+    const totalCategoriesNow = await totalcategories()
 
     // Calculate New Categories Added in the Last Month
     const newCategoriesAddedInLastMonth = totalCategoriesNow - catsOneMonthAgo
@@ -81,3 +81,55 @@ export const totalCategoriesIncreasePercent = async () => {
 
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** TOTAL REVENUE */
+
+export const totalRevenue = async () => {
+
+    const totalIncome = await prisma.product.findMany({
+        select: {
+            revenue: true
+        }
+    })
+
+    const all = totalIncome.reduce((sum, item) => sum + item.revenue, 0)
+    return all
+}
+
+export const totalRevenuePercentage = async () => {
+    const today = new Date()
+    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1))
+
+    // Get orders from one month ago (before that date)
+    const ordersOneMonthAgo = await prisma.order.findMany({
+        where: {
+            createdAt: { lt: oneMonthAgo },
+            paymentStatus: 'PAID'
+        },
+        select: { total: true }
+    })
+
+    // Get orders from last month (between one month ago and now)
+    const ordersLastMonth = await prisma.order.findMany({
+        where: {
+            createdAt: { 
+                gte: oneMonthAgo,
+                lt: new Date() 
+            },
+            paymentStatus: 'PAID'
+        },
+        select: { total: true }
+    })
+
+    const revenueOneMonthAgo = ordersOneMonthAgo.reduce((sum, order) => sum + order.total, 0)
+    const revenueLastMonth = ordersLastMonth.reduce((sum, order) => sum + order.total, 0)
+
+    // Calculate percentage increase
+    const totalRevenuePercentageOverMonthAgo = revenueOneMonthAgo === 0
+        ? (revenueLastMonth > 0 ? 100 : 0) // If starting from 0, show 100% if there's revenue
+        : ((revenueLastMonth - revenueOneMonthAgo) / revenueOneMonthAgo) * 100
+
+    return {totalRevenuePercentageOverMonthAgo}
+}
+
+
+/** ============================================================================================= */

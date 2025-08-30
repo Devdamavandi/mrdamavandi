@@ -13,7 +13,8 @@ export async function GET(request: Request, {params} : {params: {id: string}}) {
                 category: true,
                 variants: true,
                 WishlistItem: true,
-                ProductShipping: true
+                ProductShipping: true,
+                reviews: true
             }
         })
 

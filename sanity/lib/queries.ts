@@ -6,7 +6,7 @@ export const productByIdQuery = groq`
     name,
     slug,
     images[]{asset->{url}},
-    whatsInTheBox,
+    whatsInTheBox[],
     richDescription[]{
         ...,
         _type == "image" => {
@@ -15,9 +15,10 @@ export const productByIdQuery = groq`
             caption
         }
     },
+    noSpaceBetweenRichImages,
     tags,
     brand,
-    specs,
+    specs[],
     seo
 }`;
 

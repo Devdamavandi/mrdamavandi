@@ -55,6 +55,8 @@ const ProductCard = ({
     // Grab the addItem action
     const addItem = useCart((state) => state.addItem)
 
+
+
     const [heartClicked, setHeartClicked] = useState(false)
     const {data: session} = useSession()
     const userId = session?.user?.id
@@ -93,6 +95,15 @@ const ProductCard = ({
         })
     }
 
+    // for adding the click count number when a product clicked - (To Calculate View amount)
+    const handleClickView = async () => {
+        await fetch(`/api/products/view/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+        })
+    }
+
+  
                      
     return ( 
                 <div 
@@ -133,6 +144,7 @@ const ProductCard = ({
                                         priority
                                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                         className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        onClick={ handleClickView }
                                     />
                                 </Link>
                             )}
@@ -148,7 +160,9 @@ const ProductCard = ({
                         <section className="flex flex-col justify-between h-full">
                             <div>
 
-                                <Link href={hreff || ''} className="font-medium text-gray-800 line-clamp-4 hover:text-indigo-500">{name}</Link>
+                                <Link href={hreff || ''} className="font-medium text-gray-800 line-clamp-4 hover:text-indigo-500"
+                                    onClick={handleClickView}
+                                >{name}</Link>
 
                                 {/* Stars and Rating */}
                                 <div className="flex items-center gap-1 mt-1 justify-between">

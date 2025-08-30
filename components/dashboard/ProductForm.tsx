@@ -213,25 +213,6 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                  />
             </div>
 
-
-            {/* Description Field
-            <div>
-                <label htmlFor="description" className="block mb-2 font-semibold">Description*</label>
-                <textarea
-                id="description"
-                rows={4}
-                {...register('description')}
-                className={`w-full p-2 border rounded-md border-gray-300`}
-                placeholder="Enter product description"
-                 />
-            </div> */}
-
-            {/* What's in the box
-            <div className="space-y-1 w-full">
-                <h1 className="font-semibold">{`What's in the box`}</h1>
-                <RichTextEditor value={whatInBox || ''} onChange={(content) => setWhatsInBox(content)} />
-            </div> */}
-
             {/* Category SelectBox */}
             <div className="my-4 mb-6">
                 <p className="text-sm mb-2">Select category:</p>

@@ -310,3 +310,19 @@ export const useCreateDeal = () => {
         }
     })
 }
+
+/** =================================================================================================================================== */
+// GET VIEWS
+
+// const fetchProductViews = async (id: string) => {
+//     const res = await fetch(`/api/products/view/${id}`)
+//     if (!res.ok) throw new Error('Failed to fetch product views')
+//     return res.json()
+// }
+
+// export const useFetchProductViews = (id: string) => {
+//     return useQuery({
+//         queryKey: ['products', id],
+//         queryFn: () => fetchProductViews(id)
+//     })
+// }

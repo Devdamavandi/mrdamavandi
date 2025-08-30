@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     }
 
     const order = await prisma.order.findFirst({
-        where: { orderNumber: session_id },
+        where: { stripeSessionID: session_id },
         include: {
             items: {
                 include: {

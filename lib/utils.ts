@@ -13,3 +13,11 @@ export const isProductNew = (createdAt: Date, daysThreshold = 30) => {
   
   return diffInDays <= daysThreshold
 }
+
+
+// Create an instagram-like count format
+export const formatCount = (n: number) => {
+  if (n < 1000) return n.toString();
+  if (n < 1000000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + "k";
+  return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + "M";
+}

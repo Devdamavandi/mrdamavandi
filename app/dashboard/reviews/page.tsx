@@ -104,7 +104,7 @@ const ReviewsPage = () => {
                                             type='checkbox'
                                             checked={review.isChecked}
                                             className='w-4.5 h-4.5 align-middle accent-purple-400'
-                                            onClick={(e) => handleChecked(String(review.id), (e.target as HTMLInputElement).checked)}
+                                            onChange={(e) => handleChecked(String(review.id), e.target.checked)}
                                         />
                                     </td>
                                 </tr>

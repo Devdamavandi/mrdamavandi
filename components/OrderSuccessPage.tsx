@@ -3,6 +3,7 @@
 
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import { useCart } from "@/stores/usecart"
 
 
 type OrderItem = {
@@ -32,6 +33,8 @@ type Order = {
     const [order, setOrder] = useState<Order | null>(null)
     const [loading, setLoading] = useState(true)
 
+    const ClearAll = useCart((state) => state.clearCart)
+
     useEffect(() => {
 
         const fetchOrder = async (retries = 5) => {
@@ -55,7 +58,8 @@ type Order = {
         }
 
         fetchOrder()
-    }, [session_id])
+        ClearAll()
+    }, [ClearAll, session_id])
 
     if (loading) return <div className="p-4">Loading your order...</div>
     if (!order) return <div className="p-4 text-red-500">Order not found.</div>

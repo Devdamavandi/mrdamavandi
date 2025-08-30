@@ -2,103 +2,100 @@ import Stripe from "stripe"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
-type StripeMetadata = {
-    userId: string
-    billingAddress: string
-    shippingAddress: string
-}
 
-type parsedAddress = {
-    street: string
-    city: string
-    state: string
-    country: string
-    zipCode?: string
-}
 
-export const config = { api: { bodyParser: false } }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-06-30.basil' })
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
 
 export async function POST(req:Request) {
-
-    const buf = await req.arrayBuffer()
+    
+    const body = await req.text()
     const sig = req.headers.get('stripe-signature')
-    let event: Stripe.Event | undefined
+    
+    
     
     if (!sig) {
         return NextResponse.json({ error: "Missing Stripe signature header" }, { status: 400 });
     }
     
+    console.log('webhook endpoint called')
+    let event: Stripe.Event | undefined
     try {
-        event = stripe.webhooks.constructEvent(Buffer.from(buf), sig, process.env.STRIPE_WEBHOOK_SECRET!)
+         event = stripe.webhooks.constructEvent(
+        body,
+        sig!,
+        process.env.STRIPE_WEBHOOK_SECRET!
+    )
     } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Unknown error';
+        console.error("Stripe signature verification failed: ", message)
         return NextResponse.json({ error: `Webhook error: ${message}` }, { status: 400 })        
     }
     
     if (event.type === 'checkout.session.completed') {
         const sess = event.data.object as Stripe.Checkout.Session
-        const metadata = sess.metadata as StripeMetadata
+        console.log('chekout.session.completed received, session id: ', sess.id)
         
-        const billingAddress = JSON.parse(metadata.billingAddress) as parsedAddress
-        const shippingAddress = JSON.parse(metadata.shippingAddress) as parsedAddress
+    
+
+        
+        try {
+            // Update existing order instead of creating a new one
+            const updatedOrder = await prisma.order.update({
+                where: { stripeSessionID: sess.id },
+                data: { 
+                    paymentStatus: 'PAID',
+                    paymentMethod: 'CREDIT_CARD',
+                    total: (sess.amount_total ?? 0) / 100,
+                },
+                include: { items: { select: { productId: true, quantity: true, priceAtPurchase:true } } },
+            })
 
 
-        // Retrieve line items
-        const line_items = await stripe.checkout.sessions.listLineItems(sess.id, { expand: ['data.price.product'] })
+            console.log('Order updated to PAID: ', updatedOrder.id)
 
-        const items = line_items.data.map((li) => ({
-            productId: li.price?.product.toString() || '',
-            variantId: li.price?.lookup_key || '',
-            quantity: li.quantity || 1,
-            priceAtPurchase: (li.price?.unit_amount || 0) / 100,
-        }))
 
-        // Create order in DB
-        const userId = sess.metadata?.userId;
-        if (!userId) {
-            return NextResponse.json({ error: "Missing userId in session metadata" }, { status: 400 });
+            // Decrement Stock
+            if (updatedOrder.items.length > 0) {
+                // Fetch all product revenues first
+                const productRevenues = await prisma.product.findMany({
+                    where: {
+                        id: {
+                            in: updatedOrder.items.map(item => item.productId)
+                        }
+                    },
+                    select: {
+                        id: true,
+                        revenue: true
+                    }
+                });
+
+                await prisma.$transaction(
+                    updatedOrder.items.map((item) => {
+                        const product = productRevenues.find(p => p.id === item.productId);
+                        const newRevenue = (product?.revenue ?? 0) + item.priceAtPurchase * item.quantity;
+                        return prisma.product.update({
+                            where: { id: item.productId },
+                            data: { 
+                                stock: { decrement: item.quantity },
+                                revenue: newRevenue
+                            }
+                        });
+                    })
+                );
+                console.log('Product stock decremented for order: ', updatedOrder.id)
+            } else {
+                console.warn('No items found for order, stock not decremented')
+            }
+        } catch (err) {
+            console.error('Order udate failed: ', err)
+            return NextResponse.json({ error: 'order update failed' }, { status: 500 })
         }
-
-        // Create billing Address
-        const billing = await prisma.address.create({
-            data: {
-                userId,
-                street: billingAddress.street,
-                city: billingAddress.city,
-                state: billingAddress.state,
-                country: billingAddress.country,
-                zipCode: billingAddress.zipCode || '',
-            }
-        })
-
-        const shipping = await prisma.address.create({
-            data: {
-                userId,
-                street: shippingAddress.street,
-                city: shippingAddress.city,
-                state: shippingAddress.state,
-                country: shippingAddress.country,
-                zipCode: shippingAddress.zipCode || '',
-            }
-        })
-
-        await prisma.order.create({
-            data: {
-                orderNumber: sess.id,
-                userId: userId,
-                subtotal: items.reduce((a, i) => a + i.priceAtPurchase * i.quantity, 0),
-                tax: 0,
-                shippingCost: 0,
-                discount: 0,
-                total: sess.amount_total! / 100,
-                paymentMethod: 'CREDIT_CARD',
-                paymentStatus: 'PAID',
-                items: { create: items.map(i => ({ ...i })) },
-                billingAddressId: billing.id,
-                shippingAddressId: shipping.id
-            },
-        })
     }
     
     console.log("🔔 Stripe Webhook triggered:", event.type)
