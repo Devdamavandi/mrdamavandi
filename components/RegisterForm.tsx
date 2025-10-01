@@ -7,13 +7,15 @@
 import { Button } from "@/components/ui/button";
 import { UserSchema } from "@/types/zod";
 import { useForm } from "react-hook-form";
-import { RxAvatar } from "react-icons/rx";
+import { User as RxAvatar } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {FcGoogle} from 'react-icons/fc'
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { FaGithub } from "react-icons/fa";
+import { inter, roboto } from "@/lib/fonts";
 
 
 
@@ -56,17 +58,17 @@ const RegisterForm = () => {
 
 
     return ( 
-            <div className="flex justify-center items-center h-[90vh] ">
-                <div className="w-4/12 h-[30rem]">
-                    <div className="w-full h-full">
-                        <form onSubmit={handleSubmit(onSubmit)} className="px-5 pb-4 bg-gray-50 flex flex-col justify-between h-full w-full">
+            <div className="flex justify-center items-center min-h-screen">
+                <div>
+                    <div className="max-w-lg">
+                        <form onSubmit={handleSubmit(onSubmit)} className="px-5 pb-4 bg-indigo-50/20 gap-2 flex flex-col justify-center items-center min-h-screen">
                             {/* Icon */}
                             <RxAvatar
-                                className="place-self-center h-full w-full text-blue-600 mt-4 mb-6"
+                                className="place-self-center text-indigo-300 mt-4 size-10"
                             />
             
-                            {/* username */}
-                            <div className="space-y-2">
+                            <div className={`mt-4 space-y-1 ${roboto.className} font-light`}>
+                                {/* username */}
                                 <input
                                     type="text"
                                     id="name"
@@ -87,35 +89,36 @@ const RegisterForm = () => {
                                     type="password"
                                     id="password"
                                     {...register("password")}
-                                    placeholder="**********"
-                                    className={`w-full p-4 border rounded-md bg-white ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                                    placeholder="●●●●●●"
+                                    className={`w-full p-4 border rounded-md bg-white font-bold text-xl tracking-tight ${inter.className} ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
                                  />
+                                {/* Submit Button */}
+                                <div>
+                                    <Button
+                                        type="submit"
+                                        className={`w-full py-7 bg-indigo-400 hover:bg-indigi-500 text-white text-xl cursor-pointer mt-4 ${roboto.className} font-light`}
+                                    >
+                                        Register
+                                    </Button>
+                                </div>
                             </div>
-                            {/* Submit Button */}
-                             <div>
-                                 <Button
-                                    type="submit"
-                                    className="w-full py-6 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer mt-4"
-                                 >
-                                    Register
-                                 </Button>
-                             </div>
                              {/* OAuth Signup Buttons */}
-                             <div className="grid grid-cols-2 gap-2 w-full mt-4">
-                                <Button value='outline' className="hover:bg-gray-200 cursor-pointer px-4 py-2 w-full text-lg font-normal text-black/65 shadow"
+                             <div className="grid grid-cols-1 w-full h-full mt-8">
+                                <Button value='outline' className="hover:bg-indigo-100 cursor-pointer w-full py-6 outline-1"
                                     onClick={() => signIn('github')}
-                                >via Github</Button>
-                                <Button value='outline' className="hover:bg-gray-200 cursor-pointer px-4 py-2 w-full text-lg font-normal text-black/65 shadow"
+                                >
+                                    <FaGithub style={{ 'width': 32, 'height': 32 }} />
+                                </Button>
+                                <Button value='outline' className="hover:bg-indigo-100 cursor-pointer w-full py-6 outline-1"
                                     onClick={() => signIn('google', {callbackUrl: '/dashboard'})}
                                 >
-                                    via
-                                    <FcGoogle/>
+                                    <FcGoogle style={{ 'width': 32, 'height': 32 }} />
                                 </Button>
                              </div>
                              {/* Texts */}
-                             <div className="flex flex-col w-full mt-4 text-center">
-                                <Link href={'/auth/login'} className="text-xs hover:text-blue-500">Already have an account?</Link>
-                                <Link href={'/'} className="text-xs hover:text-blue-500">Back Home ⇽ </Link>
+                             <div className="flex flex-col w-full mt-4 pt-2 text-center">
+                                <Link href={'/auth/login'} className="text-sm hover:text-blue-500">Already have an account?</Link>
+                                <Link href={'/'} className="text-sm hover:text-blue-500">Back Home ⇽ </Link>
                              </div>
                         </form>
                     </div>

@@ -3,6 +3,7 @@
 
 
 
+import { useDeviceType } from "@/hooks/useDeviceType";
 import TrimText from "@/lib/trimText";
 import { useCart } from "@/stores/usecart";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
@@ -22,17 +23,24 @@ const BasketPopover = () => {
 
     const router = useRouter()
 
+    const deviceType = useDeviceType()
+
     return ( 
         <Popover>
             <PopoverTrigger>
-                <div className="relative cursor-pointer">
-                    <p className="text-2xl hover:drop-shadow-[0_0_5px_rgba(213,184,255)]">🛒</p>
-                <span className="text-lg absolute left-2.5 -top-3">{count !== 0 && count}</span>
+                <div className="cursor-pointer relative text-left pl-3">
+                    <p className="text-2xl">🛒</p>
+                    <span className="text-lg absolute -top-3 text-red-500 pl-4">{count !== 0 && count}</span>
                 </div>
             </PopoverTrigger>
             <PopoverContent>
                 {count > 0 ? (
-                    <div className="bg-white p-4 overflow-y-scroll w-xl border-gray-200 border rounded-sm mt-4">
+                    <div 
+                    className={`bg-white p-4 overflow-y-scroll overflow-x-hidden
+                        ${deviceType === 'tablet' ? 'w-xl' : 
+                        deviceType === 'min-tablet' ? 'w-md' : 
+                        deviceType === 'mobile' && 'w-xs'}
+                      border-gray-200 border rounded-sm mt-4`}>
                 {items.map((item, index) => (
                     <div key={index} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2 py-2">
                             <Image
@@ -48,17 +56,17 @@ const BasketPopover = () => {
                             <div className="flex items-center gap-1 w-fit">
                                 <button
                                 className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                onClick={() => decreaseQuantity(item.productId, item.variantId)}
+                                onClick={() => decreaseQuantity(item.variantId)}
                                 >-</button>
-                                <input type="number" className="w-10 text-right bg-white py-1" readOnly value={item.quantity}/>
+                                <input type="number" className="w-10 text-center bg-white py-1" readOnly value={item.quantity}/>
                                 <button
                                 className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                onClick={() => increaseQuantity(item.productId, item.variantId, item.stock)}
+                                onClick={() => increaseQuantity(item.variantId, item.stock)}
                                 >+</button>
                             </div>
                             <p>{TrimText(item.name, 42)}</p>
                             <button 
-                            onClick={() => removeItem(item.productId, item.variantId)}
+                            onClick={() => removeItem(item.variantId)}
                             className="bg-red-500 hover:bg-red-600 transition cursor-pointer rounded-full flex items-center justify-center text-white w-4 h-4 ml-2 hover:">
                                 X
                             </button>

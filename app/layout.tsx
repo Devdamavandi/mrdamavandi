@@ -6,21 +6,18 @@ import {  Providers } from "@/providers/provider"
 import { ToastContainer } from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css'
 import { usePathname } from "next/navigation"
-import { Inter } from 'next/font/google'
+import { inter } from '@/lib/fonts'
 import FooterComponent from '@/components/ui/footer'
 import { useEffect } from 'react'
 
 const NoNavRoutes = [
 	"/dashboard",
-	"/register",
-	"/login",
+	"/auth/register",
+	"/auth/login",
 	"/portfolio"
 ]
 
-const inter = Inter({
-	subsets: ['latin'],
-	weight: '400'
-})
+
 
 export default function RootLayout({
 	children,
@@ -54,9 +51,11 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body>
-				{!NoNavRoutes.some(route => pathname.startsWith(route)) && <Navbar />}
 				<Providers>
-					<main className={`flex-grow container mx-auto px-4 py-8 ${inter.className}`}>
+				{!NoNavRoutes.some(route => pathname.startsWith(route)) && <Navbar />}
+					<main className={`
+						
+						 ${inter.className}`}>
 						{children}
 					</main>
 					{!NoNavRoutes.some(route => pathname.startsWith(route)) && <FooterComponent/>}

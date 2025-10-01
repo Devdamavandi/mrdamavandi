@@ -75,8 +75,8 @@ export default function Home() {
                       variantId={product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""}
                       name={product.name}
                       image={product.images?.[0] || '/default-image.jpg'}
-                      price={product.price}
-                      stock={product.stock}
+                      price={product.variants?.find(v => v.isDefault)?.price || product.variants?.[0]?.price || 0}
+                      stock={product.variants?.find(v => v.isDefault)?.stock || product.variants?.[0]?.stock || 0}
                       averageRating={product.averageRating}
                       badge={product.isOnSale ? "On Sale" : ""}
                       isNew={product.createdAt ? isProductNew(new Date(product.createdAt)) : false}

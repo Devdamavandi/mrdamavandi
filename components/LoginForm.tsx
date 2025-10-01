@@ -8,7 +8,7 @@
 import { Button } from "@/components/ui/button";
 import { type LoginSchema, loginZodSchema } from "@/types/zod";
 import { useForm } from "react-hook-form";
-import { RxAvatar } from "react-icons/rx";
+import { User as RxAvatar } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import {FcGoogle} from 'react-icons/fc'
 import Link from "next/link";
@@ -16,7 +16,8 @@ import { toast } from "react-toastify";
 import {signIn} from 'next-auth/react'
 import { useEffect, useState } from "react";
 import {zodResolver} from '@hookform/resolvers/zod'
-
+import { FaGithub } from 'react-icons/fa'
+import { roboto } from "@/lib/fonts";
 
 
 const LoginPage = () => {
@@ -89,61 +90,62 @@ const LoginPage = () => {
         }
     };
     return ( 
-            <div className="flex justify-center items-center h-[90vh] ">
-                <div className="w-4/12 h-[26rem]">
-                    <div className="w-full h-full">
-                        <form onSubmit={handleSubmit(onSubmit)} className="px-5 pb-4 bg-gray-50 flex flex-col justify-between h-full w-full gap-2">
+            <div className="flex items-center justify-center min-h-screen">
+                <div>
+                    <div className="max-w-lg">
+                        <form onSubmit={handleSubmit(onSubmit)} className="px-5 pb-4 bg-indigo-50/20 flex flex-col justify-center items-center min-h-screen gap-2">
                             {/* Icon */}
                             <RxAvatar
-                                className="place-self-center h-full w-full text-blue-600 mt-4"
+                                className="place-self-center text-indigo-300 mt-4 size-10"
                             />
-                            {/* Email */}
-                            <input
-                                type="email"
-                                id="email"
-                                {...register("email")}
-                                placeholder="john@gmail.com"
-                                className={`w-full p-4 border rounded-md bg-white ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-                             />
-                             {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
-                            {/* Password */}
-                            <input
-                                type="password"
-                                id="password"
-                                {...register("password")}
-                                placeholder="**********"
-                                className={`w-full p-4 border rounded-md bg-white ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-                             />
-                             {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
-                            {/* Submit Button */}
-                            <div>
-                                <Button
-                                    type="submit"
-                                    className="w-full py-6 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer mt-4"
-                                    disabled={isLoading}
-                                >
-                                    Login
-                                </Button>
+                            <div className={`mt-4 ${roboto.className} font-light`}>
+                                {/* Email */}
+                                <input
+                                    type="email"
+                                    id="email"
+                                    {...register("email")}
+                                    placeholder="john@gmail.com"
+                                    className={`w-full p-4 mb-1 border rounded-md bg-white ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                                 />
+                                 {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
+                                {/* Password */}
+                                <input
+                                    type="password"
+                                    id="password"
+                                    {...register("password")}
+                                    placeholder="**********"
+                                    className={`w-full p-4 border rounded-md bg-white ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                                 />
+                                 {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
+                                {/* Submit Button */}
+                                <div>
+                                    <Button
+                                        type="submit"
+                                        className={`w-full py-7 bg-indigo-400 hover:bg-indigo-500 text-white text-xl cursor-pointer mt-4 ${roboto.className} font-light`}
+                                        disabled={isLoading}
+                                    >
+                                        Login
+                                    </Button>
+                                </div>
                             </div>
                             {/* OAuth Signup Buttons */}
-                            <div className="grid grid-cols-2 gap-2 w-full mt-4">
-                                <Button value='outline' className="hover:bg-gray-200 cursor-pointer px-4 py-2 w-full text-lg font-normal text-black/65 shadow"
+                            <div className="grid grid-cols-1 w-full h-full mt-8">
+                                <Button value='outline' className="hover:bg-indigo-100 cursor-pointer w-full py-6 outline-1"
                                     type="button"
                                     onClick={() => handleOAuthSignIn('github')}
-                                >login via Github
+                                ><FaGithub style={{ 'width': 32, 'height': 32 }}/>
                                 </Button>
-                                <Button value='outline' className="hover:bg-gray-200 cursor-pointer px-4 py-2 w-full text-lg font-normal text-black/65 shadow"
+                                <Button value='outline' className="hover:bg-indigo-100 cursor-pointer w-full py-6 outline-1"
                                     type="button"
                                     onClick={() => handleOAuthSignIn('google')}
                                 >
-                                    login via
-                                    <FcGoogle/>
+                                    <FcGoogle style={{ 'width': 32, 'height': 32 }}/>
                                 </Button>
                             </div>
                             {/* Texts */}
-                            <div className="flex flex-col w-full mt-4 text-center">
-                                <Link href={'/auth/register'} className="text-xs hover:text-blue-500">dont have an account?</Link>
-                                <Link href={'/'} className="text-xs hover:text-blue-500">Back Home ⇽ </Link>
+                            <div className={`flex flex-col w-full mt-2 pt-2 text-center`}>
+                                <Link href={'/auth/register'} className="text-sm hover:text-blue-500">dont have an account?</Link>
+                                <Link href={'/'} className="text-sm hover:text-blue-500">Back Home ⇽ </Link>
                             </div>
                         </form>
                     </div>

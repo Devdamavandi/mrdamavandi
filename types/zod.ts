@@ -12,7 +12,8 @@ export const variantZodSchema = z.object({
     attributes: z.object({
         color: z.string().optional(),
         size: z.string().optional()
-    })
+    }),
+    stripePriceId: z.string().optional(),
 })
 
 export const productShippingSchema = z.object({
@@ -36,9 +37,9 @@ export const productZodSchema = z.object({
     slug: z.string().optional(),
     description: z.string().max(500).optional(),
     sku: z.string().min(3, "SKU must be at least 3 characters").max(50),
-    price: z.number().min(0.01, 'Price must be at least 0.01'),
+    price: z.number().optional(),
     WishlistItem: z.string().optional(),
-    stock: z.number().int().min(0, 'Stock cannot be negative'),
+    stock: z.number().int().optional(),
     images: z.array(z.string().optional()),
     variants: z.array(variantZodSchema).optional(),
     averageRating: z.number().int(),
@@ -63,7 +64,7 @@ export const productZodSchema = z.object({
     views: z.number().optional(),
     _count: productCountSchema.optional(),
     revenue: z.number().optional(),
-    purchaseCount: z.number().optional()
+    purchaseCount: z.number().optional(),
 })
 
 export const categoryZodSchema = z.object({
@@ -165,10 +166,10 @@ export const settingsZodSchema = z.object({
 export const orderItemSchema = z.object({
     id: z.string().optional(),
     orderId: z.string(),
-    product: productZodSchema,
-    productId: z.string(),
-    variant: variantZodSchema.optional(),
-    variantId: z.string().optional(),
+    product: productZodSchema.optional(),
+    productId: z.string().optional(),
+    variant: variantZodSchema,
+    variantId: z.string(),
     quantity: z.number(),
     priceAtPurchase: z.number()
 })
@@ -195,6 +196,17 @@ export const orderZodSchema = z.object({
     carrier: z.string().optional(),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional()
+})
+
+
+export const cartItemSchema = z.object({
+    id: z.string().optional(),
+    userId: z.string(),
+    productId: z.string(),
+    variantId: z.string(),
+    quantity: z.number().min(1),
+    product: productZodSchema.optional(),
+    variant: variantZodSchema.optional()
 })
 
 export type ProductFormValues = z.infer<typeof productZodSchema>

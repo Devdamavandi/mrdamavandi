@@ -1,4 +1,5 @@
 import {prisma} from "@/lib/db";
+import { VariantFormValues } from "@/types/zod";
 import { NextResponse } from "next/server";
 
 
@@ -34,13 +35,12 @@ export async function GET(request: Request, {params} : {params: {id: string}}) {
 export async function PUT(request: Request, {params} : {params: {id: string}}) {
 
     try {
-        const {id} = await params
-
+        const { id } = await params
         const body = await request.json()
 
 
       const product = await prisma.product.update({
-        where: {id},
+        where: { id: id },
         data: {
             // Explicitly specify only updatable fields
             name: body.name,
@@ -48,21 +48,36 @@ export async function PUT(request: Request, {params} : {params: {id: string}}) {
             description: body.description,
             price: body.price,
             stock: body.stock,
+            sku: body.sku,
             images: body.images,
             categoryId: body.categoryId,
-            variants: {
-                deleteMany: {},
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                create: body.variants.map((v: any) => ({
-                    name: v.name,
-                    sku: v.sku,
-                    price: v.price,
-                    stock: v.stock,
-                    discount: v.discount,
-                    isDefault: v.isDefault,
-                    attributes: v.attributes
+            variants: body.variants && {
+                 
+                upsert: body.variants.map((v: VariantFormValues) => ({
+                    where: { id: v.id },
+                    update: {
+                        name: v.name || '',
+                        sku: v.sku || '',
+                        price: v.price,
+                        stock: v.stock || 0,
+                        discount: v.discount || 0,
+                        attributes: v.attributes || {},
+                        stripePriceId: v.stripePriceId || null,
+                        isDraft: false,
+                        isDefault: v.isDefault || null
+                    },
+                    create: {
+                        name: v.name || '',
+                        sku: v.sku || '',
+                        price: v.price || 0,
+                        stock: v.stock || 0,
+                        discount: v.discount || 0,
+                        stripePriceId: v.stripePriceId || null,
+                        attributes: v.attributes|| {},
+                        isDefault: v.isDefault || null
+                    },
                 }))
-            }, 
+            },
             whatsInTheBox: body.whatsInTheBox,
             hasFreeShipping: body.hasFreeShipping,
             returnGuarantee: body.returnGuarantee,

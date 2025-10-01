@@ -44,6 +44,10 @@ export const totalProductIncreasePercent = async () => {
     }
 }
 
+
+
+
+
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** TOTAL CATEGORIES */
 export const totalcategories = async () => {
@@ -78,6 +82,11 @@ export const totalCategoriesIncreasePercent = async () => {
 
     return {progressPercentage}
 }
+
+
+
+
+
 
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -130,6 +139,11 @@ export const totalRevenuePercentage = async () => {
 
     return {totalRevenuePercentageOverMonthAgo}
 }
+
+
+
+
+
 
 
 /** ============================================================================================= */

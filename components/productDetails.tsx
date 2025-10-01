@@ -23,10 +23,10 @@ interface ProductDetailsProps {
         id: string
         name: string
         slug: string
-        price: number
+        price: number | 0
         WishlistItem?: { userId: string }[]
         description?: string
-        stock: number
+        stock: number | 0
         discountPercentage: number
         originalPrice: number
         averageRating: number
@@ -232,7 +232,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     <button
                                     type="button"
                                     className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                    onClick={(e) => {e.preventDefault(); decreaseQuantity(product.id, (product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""))}}
+                                    onClick={(e) => {e.preventDefault(); decreaseQuantity((product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""))}}
                                     >
                                     -
                                     </button>
@@ -253,7 +253,7 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                                     <button
                                     type="button"
                                     className="px-2 py-1 hover:bg-gray-300 rounded-md bg-gray-50 border border-gray-200 cursor-pointer"
-                                    onClick={(e) => {e.preventDefault(); increaseQuantity(product.id, (product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""), product.stock)}}
+                                    onClick={(e) => {e.preventDefault(); increaseQuantity((product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""), product.stock)}}
                                     >
                                     +
                                     </button>
@@ -370,9 +370,9 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
                             name={relatedProduct.name}
                             variantId={relatedProduct.variants?.find(v => v.isDefault)?.id || relatedProduct.variants?.[0]?.id || ""}
                             image={relatedProduct.images[0] || 'default-image.jpg'}
-                            price={relatedProduct.price}
+                            price={relatedProduct.price ?? 0}
                             averageRating={relatedProduct.averageRating}
-                            stock={relatedProduct.stock}
+                            stock={relatedProduct.stock ?? 0}
                             isNew={relatedProduct.createdAt ? isProductNew(new Date(relatedProduct.createdAt)) : false}
                             originalPrice={relatedProduct.originalPrice}
                             hasFreeShipping={relatedProduct.hasFreeShipping}

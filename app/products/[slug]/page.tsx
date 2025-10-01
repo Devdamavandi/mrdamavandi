@@ -47,15 +47,15 @@ export default async function ProductPage({params}:ProductPageProps) {
 
     const transformedProduct = {
         id: product.id,
-        name: sanityData?.name,
+        name: sanityData?.name ?? "",
         slug: sanityData?.slug || '',
-        price: product.price,
+        price: product.price ?? 0,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         WishlistItem: (product.WishlistItem ?? []).map((item: any) => ({ userId: item.userId })),
         description: sanityData?.richDescription,
         noSpaceBetweenRichImages: sanityData?.noSpaceBetweenRichImages,
         specs: sanityData?.specs || [],
-        stock: product.stock,
+        stock: product.stock ?? 0,
         discountPercentage: product.discountPercentage ?? 0,
         originalPrice: product.originalPrice ?? 0,
         averageRating: product.averageRating,
@@ -75,8 +75,8 @@ export default async function ProductPage({params}:ProductPageProps) {
             updatedAt: review.updatedAt ?? new Date().toISOString(),
             product: {
                 name: sanityData?.name ?? "",
-                price: product.price,
-                stock: product.stock,
+                price: product.price ?? 0,
+                stock: product.stock ?? 0,
                 images: product.images ?? [],
                 whatsInTheBox: typeof sanityData?.whatsInTheBox === "object" && sanityData?.whatsInTheBox !== null
                     ? sanityData?.whatsInTheBox
@@ -97,7 +97,8 @@ export default async function ProductPage({params}:ProductPageProps) {
                     sku: variant.sku,
                     attributes: variant.attributes,
                     isDefault: variant.isDefault ?? undefined,
-                    discount: variant.discount ?? undefined
+                    discount: variant.discount ?? undefined,
+                    stripePriceId: variant.stripePriceId ?? ""
                 })),
                 hasFreeShipping: product.hasFreeShipping ?? false,
                 returnGuarantee: product.returnGuarantee ?? false,
@@ -130,7 +131,11 @@ export default async function ProductPage({params}:ProductPageProps) {
             price: variant.price,
             stock: variant.stock,
             sku: variant.sku,
-            attributes: variant.attributes,
+            attributes: {
+                color: variant.attributes?.color,
+                size: variant.attributes?.size
+            },
+            stripePriceId: variant.stripePriceId ?? "",
             isDefault: variant.isDefault ?? undefined,
             discount: variant.discount ?? undefined
         })),

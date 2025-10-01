@@ -35,7 +35,8 @@ const DailyDealCard = ({id, dealProductId, discountRate, endTime}: DealProductPr
     }
 
     
-    const discountedPrice = (IdenticalProduct?.price ?? 0) * (1 - (discountRate || 0))
+    const originalPrice = IdenticalProduct?.price
+    const discountedPrice = (originalPrice ?? 0) * (1 - (discountRate || 0))
     return ( 
         <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-rose-500">
             <div className="flex items-center gap-2 mb-4">
@@ -69,16 +70,16 @@ const DailyDealCard = ({id, dealProductId, discountRate, endTime}: DealProductPr
                     <h3 className="text-xl font-bold">{TrimText(IdenticalProduct?.name || '', 124)}</h3>
                     <p className="text-gray-500 text-sm mb-4">SKU: {IdenticalProduct?.sku}</p>
 
-                    {/* discountRate And Price Division */}
                     <div className="flex items-center gap-3 mb-4">
                         <span className="text-rose-600 font-bold text-2xl">
                             ${discountedPrice.toFixed(2)}
                         </span>
-                        {discountRate && (
+                        {discountRate && originalPrice !== undefined && (
                             <span className="text-gray-400 line-through">
-                                ${IdenticalProduct?.price.toFixed(2)}
+                                ${originalPrice.toFixed(2)}
                             </span>
                         )}
+                    </div>
                     </div>
 
 
@@ -107,7 +108,6 @@ const DailyDealCard = ({id, dealProductId, discountRate, endTime}: DealProductPr
                         </div>
                     )}
                 </div>
-            </div>
         </div>
      );
 }

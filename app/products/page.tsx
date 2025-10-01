@@ -49,11 +49,11 @@ const ProductsPage = () => {
                     <ProductCard key={product.id} 
                         id={product.id}
                         variantId={product.variants?.find(v => v.isDefault)?.id || product.variants?.[0]?.id || ""}
+                        price={product.variants?.find(v => v.isDefault)?.price || product.variants?.[0]?.price || 0}
+                        stock={product.variants?.find(v => v.isDefault)?.stock || product.variants?.[0]?.stock || 0}
                         name={TrimText(product.name, 120)}
-                        price={product.price}
                         image={product.images[0] || 'default-image.jpg'}
                         averageRating={product.averageRating}
-                        stock={product.stock}
                         isNew={product.createdAt ? isProductNew(new Date(product.createdAt)) : false}
                         originalPrice={product.originalPrice}
                         hasFreeShipping={product.hasFreeShipping}

@@ -1,7 +1,8 @@
 
 
 
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { loginZodSchema } from "./types/zod";
@@ -28,6 +29,10 @@ export default {
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
     Credentials({
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
         const validatedFields = loginZodSchema.safeParse(credentials);
 
@@ -40,7 +45,7 @@ export default {
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) {
             // Only allow "ADMIN" or "USER" roles for NextAuth
-            const safeRole: "ADMIN" | "USER" = user.role === "ADMIN" ? "ADMIN" : "USER";
+            const safeRole: "ADMIN" | "CUSTOMER" = user.role === "ADMIN" ? "ADMIN" : "CUSTOMER";
             return {
               id: user.id,
               email: user.email,
@@ -55,23 +60,36 @@ export default {
     })
   ],
   callbacks: {
-    async jwt({token, user}) {
-      if (user) {
-        token.role = user.role 
-        token.sub = user.id
+    async jwt({ token }: { token: JWT }) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.sub }
+      })
+      if (dbUser) {
+        token.role = dbUser.role // Use the latest DB value
+        token.sub = dbUser.id
       }
       return token
     },
-    async session({session, token}) {
+    // Session Callback
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.sub) {
         session.user.id = token.sub as string
       }
       if (session.user && token.role) {
-        session.user.role = token.role as "ADMIN" | "USER"
+        session.user.role = token.role as "ADMIN" | "CUSTOMER"
+      }
+      // Fetch latest user image from DB
+      if (session.user && session.user.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        })
+        if (dbUser?.image) {
+          session.user.image = dbUser.image
+        }
       }
       return session
     },
-    async redirect({url, baseUrl}) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       return url.startsWith(baseUrl) ? url : baseUrl
     }
   },

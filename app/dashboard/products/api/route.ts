@@ -48,45 +48,18 @@ export async function POST(request: Request) {
             }, {status: 400})
         }
 
-        const variantss = body.variants || []
-
-        /** 👇 This Part is for more security about variants check in Backend 👇 */
-       
-
-        // If variants exist, but none is default, make first one default
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const defaultVariants = variantss.filter((v: { isDefault: any; }) => v.isDefault)
-        if (variantss.length > 0 && defaultVariants.length === 0) {
-            variantss[0].isDefault = true
-        } else if (variantss.length > 0 && defaultVariants.length > 1) {
-            return NextResponse.json({ error: 'Only one variant can be marked as default!'}, {status: 400})
-        }
-
-        // Generate SKUs for variants if missing
-        if (variantss.length > 0) {
-            for (const variantt of variantss) {
-                if (!variantt.sku) {
-                    variantt.sku = await generateSKU(
-                        body.name,
-                        body.categoryId || null,
-                        variantt.attributes || {}
-                    )
-                }
-            }
-        }
-        
         const productData = {
-            name: body.name,
-            sanityId,
-            slug: sluggedName,
+            name: body.name || 'Untitled',
+            sanityId: sanityId || '',
+            slug: sluggedName || '',
             description: body.description || '',
             sku: await generateSKU(body.name, body.categoryId || null, null),
-            price: parseFloat(body.price),
+            price: parseFloat(body.price) || 0,
             stock: parseInt(body.stock) || 0,
             images: body.images || [],
             variants: {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                create: variantss.map((v: any) => ({
+                create: body.variants.map((v: any) => ({
                     name: v.name,
                     sku: v.sku,
                     price: v.price,
@@ -123,7 +96,10 @@ export async function POST(request: Request) {
         // Convert to JSON-safe format
         const safeProduct = JSON.parse(JSON.stringify(product))
         
-        return NextResponse.json({ success: true ,product: safeProduct}, {status: 201})
+        return NextResponse.json(
+            { success: true, productId: safeProduct?.id ?? null, product: safeProduct },
+            { status: 201 }
+        )
     } catch (error) {
         console.error('Creation error: ', error)
         return NextResponse.json({

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { PaymentMethod } from "@prisma/client";
+import { OrderItem, PaymentMethod } from "@prisma/client";
 import { ObjectId } from "bson";
 import { NextResponse } from "next/server";
 
@@ -29,7 +29,7 @@ interface ItemsProps {
     discount?: number
 }
 
-
+// Create order + atomically decrement stock (reservation step)
 export async function createOrder({
     items,
     billingAddress,
@@ -44,77 +44,75 @@ export async function createOrder({
     if (!session?.user) throw new Error("Not authenticated!")
 
     const subtotal = items.reduce((acc, item) => acc + item.quantity * item.priceAtPurchase, 0)
-
     const tax = 0 // For Now
     const total = subtotal + shippingCost - (discount || 0)
 
 
-    const billing = await prisma.address.create({
-        data: {
-            userId: session?.user.id,
-            street: billingAddress.street,
-            city: billingAddress.city,
-            state: billingAddress.state,
-            zipCode: billingAddress.zipCode || '',
-            country: billingAddress.country
-        }
-    })
-    
-    const shipping = await prisma.address.create({
-        data: {
-            userId: session?.user.id,
-            street: shippingAddress.street,
-            city: shippingAddress.city,
-            state: shippingAddress.state,
-            zipCode: shippingAddress.zipCode || '',
-            country: shippingAddress.country
-        }
-    })
+    // Atomically Reserve stock and create a PENDING order
+    return prisma.$transaction(async (tx) => {
+        // 1. Reserve stock (decrement Temporarily)
+        for (const item of items) {
+            const updated = await tx.variant.updateMany({
+                where: { id: item.variantId, stock: { gte: item.quantity } },
+                data: { stock: { decrement: item.quantity } }
+            })
+            if (updated.count === 0) throw new Error(`Insufficient stock for product ${item.productId}`)
 
-    const createdOrder = await prisma.order.create({
-        data: {
-            userId: session?.user.id,
-            orderNumber: new ObjectId().toHexString().slice(-8), // Unique readable ID
-            billingAddressId: billing?.id,
-            shippingAddressId: shipping?.id,
-            subtotal,
-            tax,
-            shippingCost,
-            discount: discount || 0,
-            total,
-            paymentMethod: paymentMethod as PaymentMethod,
-            items: {
-                create: items.map((i) => ({
-                    productId: i.productId,
-                    variantId: i.variantId,
-                    quantity: i.quantity,
-                    priceAtPurchase: i.priceAtPurchase,
-                })),
+            const variant = await prisma.variant.findUnique({
+                where: { id: item.variantId }
+            })
+            if (variant && variant?.stock < item.quantity) {
+                return NextResponse.json({ error: `Sorry, ${variant?.name} is out of stock` }, { status: 400 })
+            }
+        }
+
+        // 2. Create Addresses
+        const billing = await tx.address.create({ 
+            data: { 
+                userId: session.user.id, 
+                ...billingAddress,
+                zipCode: billingAddress.zipCode || '',
+                isDefault: billingAddress.isDefault !== undefined ? billingAddress.isDefault === "true" : undefined
+            } 
+        })
+        const shipping = await tx.address.create({ 
+            data: {
+                userId: session.user.id,
+                ...shippingAddress,
+                zipCode: shippingAddress.zipCode || '',
+                isDefault: shippingAddress.isDefault !== undefined ? shippingAddress.isDefault === "true" : undefined
+            }
+         })
+
+
+        //  3. Create order in PENDING state
+        const createdOrder = await tx.order.create({
+            data: {
+                userId: session.user.id,
+                orderNumber: new ObjectId().toHexString().slice(-8),
+                billingAddressId: billing.id,
+                shippingAddressId: shipping.id,
+                subtotal,
+                tax,
+                shippingCost,
+                discount: discount || 0,
+                total,
+                paymentMethod: paymentMethod as PaymentMethod,
+                paymentStatus: 'PENDING',
+                items: {
+                    create: items.map(i => ({
+                        product: { connect: { id: i.productId } },
+                        variant: { connect: { id: i.variantId } },
+                        quantity: i.quantity,
+                        priceAtPurchase: i.priceAtPurchase
+                    }))
+                }
             },
-        },
-        include: { items: true } // include items so we can update product's revenue
+            include: { items: true }
+        })
+
+        return createdOrder
     })
-
-    // update product.revenue for each order item (server-side)
-    try {
-        // multiply prices by 100 to store revenue in cents as Int
-        await prisma.$transaction(
-            createdOrder.items.map(item =>
-                prisma.product.update({
-                    where: { id: item.productId },
-                    data: {
-                        revenue: {
-                            increment: Math.round((item.priceAtPurchase ?? 0) * item.quantity * 100)
-                        }
-                    }
-                })
-            )
-        )
-    } catch (err) {
-        console.error('Failed to update product revenue', err)
-    }
-
-    return createdOrder
 }
 
 

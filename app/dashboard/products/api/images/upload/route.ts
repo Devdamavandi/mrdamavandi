@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
 
-    // 2. Conver file to buffer
+    // 2. Convert file to buffer
     const buffer = await file.arrayBuffer()
     const bytes = Buffer.from(buffer)
 

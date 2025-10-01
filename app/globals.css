@@ -2,3 +2,20 @@
 @import "tailwindcss";
 @tailwind utilities;
 
+html, body {
+    scroll-behavior: smooth;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+@media (min-width: 481px){
+    .show-at-481 {
+        display: block !important;
+    }
+}
+
+@media (min-width: 481px) {
+    .hide-below-481 {
+        display: none !important;
+    }
+}

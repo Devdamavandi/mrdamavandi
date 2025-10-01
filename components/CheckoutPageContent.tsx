@@ -48,6 +48,7 @@ const CheckoutPageContent = () => {
         shippingCountry: false
     })
 
+
     const searchParams = useSearchParams()
     const cancelled = searchParams.get('cancelled')
     
@@ -69,9 +70,10 @@ const CheckoutPageContent = () => {
 
 
     const handleCheckout = async () => {
+        
         if (paymentMethod === 'COD') {
             // 1. CASH ON DELIVERY (direct DB create)
-            await fetch('/api/order-before-payment' , {
+            const res = await fetch('/api/order-before-payment' , {
                 method: 'POST',
                 body: JSON.stringify({
                     items: items.map((i) => ({
@@ -89,6 +91,12 @@ const CheckoutPageContent = () => {
                 }),
                 headers: { "Content-Type": "application/json" }
             })
+
+            if (!res.ok) {
+                // to gather res errors in the error variable
+                const error = await res.json().catch(() => ({}))
+                alert(error?.error || "Something went wrong. Please try again")
+            }
     
             ClearCart()
             router.push('/order-success')
@@ -103,7 +111,9 @@ const CheckoutPageContent = () => {
                         variantId: i.variantId,
                         price: i.price,
                         quantity: i.quantity,
-                    }))
+                    })),
+                    billingAddress,
+                    shippingAddress 
                  }),
                 headers: { "Content-Type": "application/json" }
             })
@@ -114,7 +124,7 @@ const CheckoutPageContent = () => {
                 sessionId = data.sessionId
             } else {
                 const error = await res.json().catch(() => ({}))
-                alert(error?.error || "Payment error. PLease try again.")
+                alert(error?.error || "Payment error. Please try again.")
                 return
             }
             const stripe = await stripePromise

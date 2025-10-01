@@ -38,7 +38,7 @@ const AdminOrdersPageContent = ({orders} : OrdersType) => {
                             <AccordionContent>
                                 {order.items.map((item) => (
                                     <div key={item.id} className="flex flex-col">
-                                        <span><strong className="text-sm">Title</strong>: {item.product.name} * {item.quantity}</span>
+                                        <span><strong className="text-sm">Title</strong>: {item.product?.name} * {item.quantity}</span>
                                         <form action={`/api/orders/${order.id}/update-status`} method="POST">
                                             <select name="status" defaultValue={order.status} className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400">
                                                 <option value="PROCESSING">processing</option>

@@ -32,8 +32,8 @@ const ProductList = ({ slug, initialProducts }: { slug: string; initialProducts:
                             variantId={p.variants?.find(v => v.isDefault)?.id || p.variants?.[0]?.id || ""}
                             name={p.name}
                             image={p.images?.[0] || '/default-image.jpg'}
-                            price={p.price}
-                            stock={p.stock}
+                            price={Number(p.price)}
+                            stock={Number(p.stock)}
                             averageRating={p.averageRating}
                             badge={p.isOnSale ? "On Sale" : ""}
                             isNew={p.createdAt ? isProductNew(new Date(p.createdAt)) : false}

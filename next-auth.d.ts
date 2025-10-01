@@ -11,12 +11,12 @@ import { DefaultSession, DefaultUser } from "next-auth";
 declare module "next-auth" {
   interface User extends DefaultUser{
     id: string;
-    role?: "ADMIN" | "USER";
+    role?: "ADMIN" | "CUSTOMER";
   }
   interface Session {
     user: {
       id: string;
-      role: "ADMIN" | "USER"; 
+      role: "ADMIN" | "CUSTOMER"; 
     } & DefaultSession["user"];
   }
 }
@@ -25,7 +25,7 @@ declare module "next-auth" {
 declare module "@auth/core/adapters" {
   interface AdapterUser extends User {
     id: string
-    role?: "ADMIN" | "USER"
+    role?: "ADMIN" | "CUSTOMER"
   }
 }
 

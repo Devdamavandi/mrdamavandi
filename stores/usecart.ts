@@ -18,11 +18,11 @@ type CartItem = {
 
 type CartState = {
     items: CartItem[]
-    addItem: (item: CartItem) => void
-    removeItem: (productId: string, variantId: string) => void
+    addItem: (item: CartItem, quantity?: number) => void
+    removeItem: (variantId: string) => void
     clearCart: () => void
-    increaseQuantity: (productId: string, variantId: string, stock: number) => void
-    decreaseQuantity: (productId: string, variantId: string) => void
+    increaseQuantity: (variantId: string, stock: number) => void
+    decreaseQuantity: (variantId: string) => void
 }
 
 
@@ -32,57 +32,60 @@ export const useCart = create<CartState>()(
     persist(
         (set) => ({
             items: [],
-            addItem: (item) =>
+
+
+
+            addItem: (item, quantity = 1) =>
                 set((state) => {
-                    const existing = state.items.find(
-                        (i) =>
-                            i.productId === item.productId &&
-                            i.variantId === item.variantId
-                    );
+                    const existing = state.items.find((i) => i.variantId === item.variantId );
                     if (existing) {
+                        // update quantity but dont exceed stock
                         return {
                             items: state.items.map((i) =>
-                                i.productId === item.productId &&
                                 i.variantId === item.variantId
-                                    ? { ...i, quantity: i.quantity + item.quantity }
+                                    ? { ...i, quantity: Math.min(i.quantity + item.quantity, i.stock), }
                                     : i
                             ),
                         };
                     }
-                    return { items: [...state.items, item] };
+                    return { items: [...state.items, {...item, quantity: Math.min(quantity, item.stock)}] };
                 }),
-            removeItem: (productId, variantId) =>
+
+
+
+            removeItem: (variantId) =>
                 set((state) => ({
-                    items: state.items.filter(
-                        (i) =>
-                            !(
-                                i.productId === productId &&
-                                i.variantId === variantId
-                            )
-                    ),
+                    items: state.items.filter((i) => i.variantId !== variantId)
                 })),
+
+
+
             clearCart: () => set({ items: [] }),
-            increaseQuantity: (productId, variantId, stock) =>
+
+
+            
+            increaseQuantity: (variantId) =>
                 set((state) => ({
-                    items: state.items.map((item) =>
-                        item.productId === productId &&
-                        item.variantId === variantId &&
-                        item.quantity < stock
-                            ? { ...item, quantity: item.quantity + 1 }
-                            : item
+                    items: state.items.map((i) =>
+                        i.variantId === variantId && i.quantity < i.stock
+                            ? { ...i, quantity: i.quantity + 1 }
+                            : i
                     ),
                 })),
-            decreaseQuantity: (productId, variantId) =>
+
+
+                
+            decreaseQuantity: (variantId) =>
                 set((state) => ({
-                    items: state.items.map((item) =>
-                        item.productId === productId &&
-                        item.variantId === variantId &&
-                        item.quantity > 1
-                            ? { ...item, quantity: item.quantity - 1 }
-                            : item
+                    items: state.items.map((i) =>
+                        i.variantId === variantId && i.quantity > 1
+                            ? { ...i, quantity: i.quantity - 1 }
+                            : i
                     ),
                 })),
         }),
+
+
         {
             name: "cart-storage", // unique name for storage
         }

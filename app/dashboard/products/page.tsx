@@ -14,16 +14,19 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
  } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 import TopNavigationNav from "@/components/dashboard/top-nav";
+import { VariantFormValues } from "@/types/zod";
+import { roboto } from "@/lib/fonts";
 
 interface ProductProps {
     id?: string
     name: string
     description?: string
-    stock: number
+    stock?: number
     category?: {id: string , name: string}
-    price: number
+    price?: number
     createdAt?: Date | string
     images?: (string | undefined)[]
+    variants?: VariantFormValues[]
 }
 
 
@@ -156,7 +159,7 @@ const ProductsPage = () => {
                 <table className="min-w-full">
                     {/* head section of the table */}
                     <thead>
-                        <tr>
+                        <tr className={`${roboto.className}`}>
                             <th className="py-2 px-4 bg-blue-50 text-blue-800">#</th>
                             <th className="py-2 px-4 bg-blue-50 text-blue-800">Image</th>
                             <th className="py-2 px-4 bg-blue-50 text-blue-800">Name</th>
@@ -193,33 +196,33 @@ const ProductsPage = () => {
                                     <div className="w-16 h-16 bg-gray-100 rounded">No image</div>
                                 )}
                                 </td>
-                                <td className="py-2 px-4 bg-blue-50/30">
-                                    <Link href={`/dashboard/products/${product.id}`}>
-                                        {product.name}
-                                    </Link>
+                                    <td className={`py-2 px-4 bg-blue-50/30 ${roboto.className} font-light`}>
+                                        <Link href={`/dashboard/products/${product.id} `}>
+                                            {product.name}
+                                        </Link>
+                                        </td>
+                                    {visibleColumns.includes('Description') && (
+                                        <td className={`py-2 px-4 bg-blue-50/30 ${roboto.className} font-light`}>{product.description || '-'}</td>
+                                    )}
+                                    <td className={`py-2 px-4 bg-blue-50/30 text-center ${roboto.className} font-light`}>{product.variants?.find(v => v.isDefault)?.price}</td>
+                                    <td className={`py-2 px-4 bg-blue-50/30 text-center ${roboto.className} font-light`}>{product.variants?.find(v => v.isDefault)?.stock}</td>
+                                    {visibleColumns.includes('Category') && (
+                                        <td className={`py-2 px-4 bg-blue-50/30 text-center ${roboto.className} font-light`}>{product.category?.name || '-'}</td>)}
+                                    {visibleColumns.includes('Created At') && (
+                                    <td className="py-2 px-4 bg-blue-50/30 text-center">
+                                        {product.createdAt instanceof Date ? product.createdAt.toLocaleDateString() : product.createdAt}
                                     </td>
-                                {visibleColumns.includes('Description') && (
-                                    <td className="py-2 px-4 bg-blue-50/30">{product.description || '-'}</td>
-                                )}
-                                <td className="py-2 px-4 bg-blue-50/30 text-center">{product.price}</td>
-                                <td className="py-2 px-4 bg-blue-50/30 text-center">{product.stock}</td>
-                                {visibleColumns.includes('Category') && (
-                                    <td className="py-2 px-4 bg-blue-50/30 text-center">{product.category?.name || '-'}</td>)}
-                                {visibleColumns.includes('Created At') && (
-                                <td className="py-2 px-4 bg-blue-50/30 text-center">
-                                    {product.createdAt instanceof Date ? product.createdAt.toLocaleDateString() : product.createdAt}
-                                </td>
                             )}
                                 <td className="py-2 px-4 bg-blue-50/30 text-center">
                                     <Link href={`/dashboard/products/edit/${product.id}`}
-                                    className="text-blue-500 mr-2 text-center"
+                                    className={`text-blue-500 mr-2 text-center ${roboto.className} font-normal`}
                                     >
                                         Edit
                                     </Link>
                                     {/* Delete Button */}
                                     <Button variant={'destructive'}
                                      size={'sm'}
-                                     className="bg-red-500 hover:bg-red-600/95 cursor-pointer"
+                                     className={`bg-red-500 hover:bg-red-600/95 cursor-pointer ${roboto.className} font-medium`}
                                     onClick={() => {
                                         if (confirm('Are you sure you want to delete this product?')) {
                                             deleteProduct(product.id!)

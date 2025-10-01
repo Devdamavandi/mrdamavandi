@@ -143,8 +143,8 @@ const updateProduct = async (product: ProductFormValues): Promise<ProductFormVal
      // Filter out non-updatable fields
      const payload = {
         ...product,
-        price: Number(product.price),
-        stock: Number(product.stock),
+        price: Number(product.variants?.[0].price),
+        stock: Number(product.variants?.[0].stock),
         variants: product?.variants,
         ProductShipping: product?.ProductShipping
     }

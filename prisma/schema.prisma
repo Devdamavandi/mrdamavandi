@@ -17,12 +17,13 @@ datasource db {
 model Product {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   sanityId   String?   // For Sanity integration, if applicable
+  stripePriceId String? @unique
   // Product Details
   name        String
   slug        String? @unique
   description Json?
-  price       Float
-  stock       Int
+  price       Float?
+  stock       Int?
   images      String[] // Array of image URLs
   whatsInTheBox Json?
 
@@ -195,9 +196,14 @@ model CartItem {
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
 
+  variantId String @db.ObjectId
+  variant Variant @relation(fields: [variantId], references: [id])
+
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, variantId]) // prevents duplicate same-variant cart rows
 }
 
 model WishlistItem {
@@ -258,8 +264,8 @@ model OrderItem {
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id])
 
-  variantId String?  @db.ObjectId
-  variant   Variant? @relation(fields: [variantId], references: [id])
+  variantId String  @db.ObjectId
+  variant   Variant @relation(fields: [variantId], references: [id])
 
 
   quantity        Int
@@ -271,6 +277,8 @@ model Variant {
 
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  stripePriceId String? @unique 
 
   isDefault Boolean?
 
@@ -286,7 +294,10 @@ model Variant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  isDraft Boolean?
+
   OrderItem OrderItem[]
+  CartItem CartItem[]
 }
 
 model Review {
@@ -364,6 +375,15 @@ model Settings {
   value String                                            // Store as string; parse to number/JSON when needed
   category String                                         // <-- e.g., "homepage", "footer", "seo"
   updatedAt DateTime @updatedAt
+}
+
+model WebhookEvent {
+  id  String  @id @default(cuid()) @map("_id")
+  eventId String  @unique
+  type String
+  processed Boolean @default(false)
+  processedAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 // Enum for the new models

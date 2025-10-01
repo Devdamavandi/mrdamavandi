@@ -37,9 +37,11 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
 
     const [productImages, setProductImages] = useState<string[]>(Array.isArray(defaultValues?.images) ? defaultValues?.images.filter((img): img is string => !!img) : [])
     const [variants, setVariants] = useState<VariantFormValues[]>(
-        defaultValues?.variants?.map(v => ({...v, id: v.id || uuidv4()})) || []
+        defaultValues?.variants?.map(v => ({...v, id: v.id })) || []
     )
 
+    // temp ProductId for variant use
+    const [tempProductId, setTempProductId] = useState('')
     
     // 1.Initialize RHF with zod Resolver
     const {register, handleSubmit, formState: {errors}, setValue, watch, trigger, reset} = useForm<ProductFormValues>({
@@ -71,6 +73,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         }
     }, [defaultValues, reset])
 
+    // Fetch product sanity data and set value
     useEffect(() => {
         async function syncSanity() {
             if (defaultValues?.sanityId) {
@@ -86,10 +89,45 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
         syncSanity()
     }, [defaultValues?.sanityId, setValue])
  
+    // IF we are in create mode, here provides a placeholder productId for variant use
+    useEffect(() => {
+        if (!defaultValues?.id) {
+            const fetchProductId = async () => {
+                try {
+                    const res = await fetch('/dashboard/products/api', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ name: '', price: 0, categoryId: '' })
+                    })
+                    if (!res.ok) throw new Error('Response from the product POST api was not successful')
+                    const data = await res.json()
+                    if (data?.id) setTempProductId(data.id)
+                } catch (error) {
+                    console.error('failed to get placeholder product id', error)
+                }
+            }
+            fetchProductId()
+        }
+    }, [defaultValues?.id])
     
-    // if (!defaultValues) return <div>Loading product data...</div>
+    // Create a placeholder variant Arrow function Everytime a new Temporary Variant is added to the form
+    const createPlaceholderVariant = async (productId?: string) => {
+        const res = await fetch('/dashboard/variants/api', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ productId })
+        })
 
+        const { id, variant } = await res.json()
+        return { id, variant }
+    }
     
+    // Change price and stock field of the product - JUST FOR DISPLAYING GOALS NOT MORE
+    useEffect(() => {
+        const defaultV = variants.find(v => v.isDefault) ?? variants[0] ?? null
+        setValue('price', Number(defaultV?.price ?? 0), { shouldValidate: true, shouldDirty: true })
+        setValue('stock', Number(defaultV?.stock ?? 0), { shouldValidate: true, shouldDirty: true })
+    }, [variants, setValue])
 
     // 2.Form submission handler
     const onSubmit = async (data: ProductFormValues) => {
@@ -109,6 +147,35 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             variants[0].isDefault = true
         }
 
+        // preparing data for stripe price API 
+        const stripeResponse = await fetch('/api/create-stripe-prices', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                productName: data.name,
+                variants: variants.map(v => ({
+                    id: v.id,
+                    name: v.name,
+                    price: v.price,
+                    sku: v.sku,
+                    color: v.attributes.color,
+                    size: v.attributes.size,
+                    isDefault: v.isDefault,
+                    discount: v.discount,
+                    stock: v.stock,
+                })) 
+            })
+        })
+
+        console.log('Stripe Response = ', stripeResponse)
+
+        if (!stripeResponse.ok) {
+            toast.error('Stripe error: could not create prices')
+            return
+        }
+
+        const stripeData = await stripeResponse.json()
+        const updatedVariants = stripeData.variantsWithStripeIds
  
         // Convert string numbers to actual numbers
         const processedData = {
@@ -117,7 +184,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
             price: Number(data?.price),
             stock: Number(data?.stock),
             categoryId: data?.categoryId || undefined,
-            variants: variants,
+            variants: updatedVariants,
             ProductShipping: {
                 shipsIn: data.ProductShipping?.shipsIn ?? '',
                 shipsFrom: data.ProductShipping?.shipsFrom ?? '',
@@ -244,18 +311,23 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                             type="button"
                             variant={"default"}
                             className="px-4 py-2 hover:bg-indigo-200 cursor-pointer shadow-md"
-                            onClick={() => setVariants([
+                            onClick={async () => {
+                                const { id } = await createPlaceholderVariant(defaultValues?.id || tempProductId)
+                                setVariants([
                                 ...variants, 
                                 {
-                                    id: uuidv4(),   // Generate new uuid
+                                    id: id,   // Generate new uuid
                                     name: '',
                                     sku: '',
                                     price: 0,
                                     discount: 0,
                                     stock: 0,
-                                    attributes: { color: '' }
+                                    attributes: { color: '' },
+                                    stripePriceId: '' // required placeholder until Stripe price is created
                                 }
-                            ])}
+                            ])
+                                console.log('new Variant id is = ', id)
+                            }}
                         >
                             Add Variant
                         </Button>
@@ -267,8 +339,8 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                             <p className="text-center text-rose-500">No variants added yet. click &quot;Add Variant&quot; to create one!!</p>
                         ) : (
                             // Set Variants to variant state Array
-                            variants.map((variant) => (
-                                <div key={variant.id} className="flex gap-4 justify-center">
+                            variants.map((variant, idx) => (
+                                <div key={variant.id ?? `variant-${idx}`} className="flex gap-4 justify-center">
                                     {/* Name */}
                                     <div className="flex flex-col items-center justify-center gap-1">
                                         <label htmlFor="variant-price" className="text-xs">variant name</label>
@@ -277,7 +349,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-name"
                                         className="p-2 border-gray-200 border rounded w-30"
                                         value={variant.name || ''}
-                                        onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'name', e.target.value)}
+                                        onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
                                         />
                                     </div>
                                     {/* Color */}
@@ -288,7 +360,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-color"
                                         className="p-2 border-gray-200 border rounded w-20"
                                         value={variant.attributes?.color || ''}
-                                        onChange={(e) => { updateVariantAttribute((variant.id ?? uuidv4()), 'color', e.target.value) }}
+                                        onChange={(e) => { updateVariantAttribute((variant.id), 'color', e.target.value) }}
                                         />
                                     </div>
                                     {/* Stock */}
@@ -301,7 +373,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-stock"
                                         className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.stock || 0}
-                                        onChange={(e) => {updateVariant((variant.id ?? uuidv4()), 'stock', Number(e.target.value))}}
+                                        onChange={(e) => {updateVariant((variant.id), 'stock', Number(e.target.value))}}
                                         />
                                     </div>
                                     {/* Price */}
@@ -315,7 +387,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-price"
                                         className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.price || 0}
-                                        onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'price', Number(e.target.value)) }}
+                                        onChange={(e) => { updateVariant(variant.id, 'price', Number(e.target.value)) }}
                                         />
                                     </div>
                                     {/* Discount */}
@@ -329,7 +401,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-discount"
                                         className="p-2 border-gray-200 border rounded w-18"
                                         value={variant.discount || 0}
-                                        onChange={(e) => { updateVariant((variant.id ?? uuidv4()), 'discount', Number(e.target.value)) }}
+                                        onChange={(e) => { updateVariant(variant.id, 'discount', Number(e.target.value)) }}
                                         />
                                     </div>
                                     {/* SKU */}
@@ -342,7 +414,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                                 id={`variant-sku-${variant.id}`}
                                                 value={variant.sku || ''}
                                                 className="w-full p-2 border border-gray-200 rounded-md text-sm h-10"
-                                                onChange={(e) => updateVariant(variant.id ?? uuidv4(), 'sku', e.target.value)}
+                                                onChange={(e) => updateVariant(variant.id, 'sku', e.target.value)}
                                             />
                                         </div>
                                             <button
@@ -369,7 +441,7 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id="variant-size"
                                         className="w-12 p-2 border border-gray-200"
                                         value={variant.attributes?.size || ''}
-                                        onChange={(e) => {updateVariantAttribute((variant.id ?? uuidv4()), 'size', e.target.value)}
+                                        onChange={(e) => {updateVariantAttribute(variant.id, 'size', e.target.value)}
                                         }
                                         />
                                     </div>
@@ -382,13 +454,14 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                                         id={`variant-default-${variant.id}`}
                                         className="p-2 border-gray-200 border rounded"
                                         checked={variant.isDefault || false}
-                                        onChange={() => {
+                                        onChange={async () => {
                                             setVariants(prevVariants => 
                                                 prevVariants.map(v => ({
                                                     ...v,
                                                     isDefault: v.id === variant.id  // Only true for the selected variant
                                                 }))
                                             )
+                                            console.log(variant.id)
                                         }}
                                         />
                                     </div>
@@ -455,11 +528,11 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 <input
                 id="price"
                 type="number"
-                step='0.01'
-                min='1'
+                step={0.01}
                 {...register('price', {valueAsNumber: true})}
-                className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full p-2 border text-gray-400 rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="0.00"
+                disabled
                  />
                  {errors.price && (
                     <p className="text-sm mt-1 text-red-600">{errors.price.message}</p>
@@ -472,10 +545,10 @@ const ProductForm = ({defaultValues} : ProductFormProps) => {
                 <input
                 id="stock"
                 type="number"
-                min={'0'}
                 {...register('stock')}
-                className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full text-gray-400 p-2 border rounded-md ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="0"
+                disabled
                  />
                  {errors.stock && (
                     <p className="mt-1 text-sm text-red-600">{errors.stock.message}</p>
