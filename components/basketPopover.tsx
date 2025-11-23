@@ -64,12 +64,15 @@ const BasketPopover = () => {
                                 onClick={() => increaseQuantity(item.variantId, item.stock)}
                                 >+</button>
                             </div>
+                            {/* Item Name */}
                             <p>{TrimText(item.name, 42)}</p>
+                            {/* Remove item button */}
                             <button 
                             onClick={() => removeItem(item.variantId)}
-                            className="bg-red-500 hover:bg-red-600 transition cursor-pointer rounded-full flex items-center justify-center text-white w-4 h-4 ml-2 hover:">
+                            className="bg-red-500 hover:bg-red-600 transition cursor-pointer rounded-full flex items-center justify-center text-white w-4 h-4 ml-2">
                                 X
                             </button>
+                            {/* Total Line */}
                             <hr className="mt-5 border-gray-200 w-[calc(100%+30rem)]"/>
                     </div>
                 ))}

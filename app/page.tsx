@@ -47,13 +47,13 @@ export default function Home() {
 
 
       {/* CATEGORY SHOWCASE ( Horizontal Scroll )*/}
-      <section className="py-[5rem] container mx-auto px-4">
+      <section className="py-[5rem] max-w-7xl container mx-auto px-4">
         <h2 className="text-3xl font-bold mt-2 text-center mb-2 ">Shop by Category</h2>
         <CategoryShowcase/>
       </section>
 
 
-      {/* Featured Products ( Grid Layout ) */}
+      {/* Featured Products ( TRENDING NOW ) */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center mb-8">

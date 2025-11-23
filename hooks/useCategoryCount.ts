@@ -13,6 +13,7 @@ type CategoryWithCounts = {
     productCount: number
 }
 
+
 export const useCategoryCounts = () => {
     const [categories, setCategories] = useState<CategoryWithCounts[]>([])
     const [loading, setLoading] = useState(true)

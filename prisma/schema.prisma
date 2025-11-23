@@ -138,7 +138,7 @@ model User {
   reviews Review[]
 }
 
-// Supporting models for authentication
+// Supporting models for OAuth authentication
 model Account {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   userId            String   @db.ObjectId

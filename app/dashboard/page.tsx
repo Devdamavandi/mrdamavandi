@@ -5,7 +5,7 @@
 import { auth } from "@/auth";
 import {prisma} from "@/lib/db";
 import { redirect } from "next/navigation";
-import DashboardPageClient from "@/components/DashboardPageClient"; // rename your current dashboard to this
+import DashboardPageAdmin from "@/components/DashboardPageAdmin"; // rename your current dashboard to this
 import CustomerDashboardPage from "@/components/customer/CustomerDashboard";
 
 export default async function DashboardPage() {
@@ -26,5 +26,5 @@ export default async function DashboardPage() {
   }
 
   // Render the client dashboard
-  return <DashboardPageClient />;
+  return <DashboardPageAdmin />;
 }

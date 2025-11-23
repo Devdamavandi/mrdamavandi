@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { OrderItem, PaymentMethod } from "@prisma/client";
+import { PaymentMethod } from "@prisma/client";
 import { ObjectId } from "bson";
 import { NextResponse } from "next/server";
 

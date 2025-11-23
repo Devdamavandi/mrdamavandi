@@ -19,19 +19,13 @@ export async function GET(req: Request) {
         
             const foundOrder = await prisma.order.findMany({
                 where: { userId: foundUser.id },
-                select: { 
-                    id: true,
-                    items: true, 
-                    createdAt: true, 
-                    shippingCost: true,
-                    status: true,
-                    total: true,
-                    trackingNumber: true,
-                    paymentMethod: true,
-                    paymentStatus: true,
-                    carrier: true,
-                    orderNumber: true,
-                    _count: true
+                include: {
+                    items: {
+                        include: {
+                            product: true,
+                            variant: true
+                        }
+                    }
                 }
             })
         

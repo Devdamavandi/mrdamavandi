@@ -17,6 +17,7 @@ const FooterComponent = () => {
 
     const { data: Categories } = useCategories()
 
+    // Categories Count
     useEffect(() => {
         const loadCategoriesCount = async () => {
             const res = await fetch('/api/settings?type=homepage')

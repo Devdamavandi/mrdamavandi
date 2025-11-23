@@ -12,6 +12,7 @@ const ProductsPage = () => {
 
     const {data: products = [], isLoading, error} = useProducts()
    
+    // Just for Loading Animation
     if (isLoading){
         return (
             <div className="p-4">
@@ -66,7 +67,7 @@ const ProductsPage = () => {
               ))}
             </div>
         </div>
-     )
+    )
 }
  
 export default ProductsPage;

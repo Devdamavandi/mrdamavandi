@@ -130,10 +130,10 @@ const ProductDetails = ({product}: ProductDetailsProps) => {
             <div className="flex gap-2">
                 <div className="flex-2">
                     <ProductImageComponent
-                    key={product.id}
-                    initialImages={product.images}
-                    onImagesChange={undefined}
-                    viewMode
+                        key={product.id}
+                        initialImages={product.images}
+                        onImagesChange={undefined}
+                        viewMode
                      />
                 </div>
 

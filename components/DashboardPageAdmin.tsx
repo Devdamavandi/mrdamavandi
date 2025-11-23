@@ -33,7 +33,7 @@ const poppins = Poppins({
     subsets: ['latin'],
     weight: '300'
 })
-const DashboardPageClient = () => {
+const DashboardPageAdmin = () => {
 
 
     // for saving products data
@@ -369,4 +369,4 @@ const DashboardPageClient = () => {
      )
 }
  
-export default DashboardPageClient;
+export default DashboardPageAdmin;
