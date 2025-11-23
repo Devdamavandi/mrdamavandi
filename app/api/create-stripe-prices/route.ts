@@ -8,6 +8,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { withCors, handleOptions } from "@/lib/cors";
+
+export function OPTIONS() {
+  return handleOptions();
+}
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -57,10 +63,10 @@ export async function POST(req: NextRequest) {
             })
         )
 
-        return NextResponse.json({
+        return withCors(NextResponse.json({
             stripeProductId: stripeProduct.id,
             variantsWithStripeIds: stripePrices
-        })
+        }))
     } catch (error) {
         console.error('Stripe error: ', error)
         return new NextResponse('Stripe error: ', { status: 500 })

@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+import { withCors, handleOptions } from "@/lib/cors";
+
+export function OPTIONS() {
+  return handleOptions();
+}
 
 async function getAllCategoryIds(categoryId: string): Promise<string[]> {
   const children = await prisma.category.findMany({
@@ -44,7 +49,7 @@ export async function GET(){
       })
     )
     
-    return NextResponse.json(categoriesWithCounts)
+    return withCors(NextResponse.json(categoriesWithCounts))
   } catch (error) {
     console.error('failed fetching categories: ', error)
     return NextResponse.json({ error: 'Failed to fetch categories' }, {status: 500})

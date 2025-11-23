@@ -7,7 +7,11 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createHash } from 'crypto'
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -249,7 +253,7 @@ export async function POST(req: Request) {
             })
         }
 
-        return NextResponse.json({ sessionId: checkoutSession.id })
+        return withCors(NextResponse.json({ sessionId: checkoutSession.id }))
     } catch (error) {
         console.error('Stripe error', error)
         const errorMessage =

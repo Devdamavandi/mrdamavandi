@@ -3,7 +3,11 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET() {
 
@@ -20,5 +24,5 @@ export async function GET() {
         }
     })
 
-    return NextResponse.json(latestOrder)
+    return withCors(NextResponse.json(latestOrder))
 }

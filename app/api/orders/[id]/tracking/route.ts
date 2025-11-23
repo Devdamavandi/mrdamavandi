@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db"
 import { NextResponse } from "next/server"
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -15,5 +19,5 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         data: { carrier, trackingNumber }
     })
 
-    return NextResponse.redirect('/dashboard/orders')
+    return withCors(NextResponse.redirect('/dashboard/orders'))
 }

@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db"
 import { NextResponse } from "next/server"
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET(req: Request) {
 
@@ -29,7 +33,7 @@ export async function GET(req: Request) {
                 }
             })
         
-            return NextResponse.json(foundOrder)
+            return withCors(NextResponse.json(foundOrder))
     } catch (err) {
         console.error('Failed to Get Customer Orders in Backend', err)
         return NextResponse.json({ error: 'Failed to Get Customer Orders(backend)' }, { status: 500 })

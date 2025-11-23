@@ -2,7 +2,11 @@ import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET(req: NextRequest) {
 
@@ -37,5 +41,5 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    return NextResponse.json(order)
+    return withCors(NextResponse.json(order))
 }
