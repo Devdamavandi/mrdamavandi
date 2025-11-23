@@ -2,7 +2,11 @@ import { prisma } from "@/lib/db"
 import { NextResponse } from "next/server"
 
 
+import { withCors, handleOptions } from "@/lib/cors";
 
+export function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET() {
     try {
@@ -11,7 +15,7 @@ export async function GET() {
                 dailyDealProduct: true,
             }
         })
-        return NextResponse.json(deal, {status: 200})
+        return withCors(NextResponse.json(deal, {status: 200}))
     } catch (error) {
         console.error('failed to get deal', error)
         return NextResponse.json({
@@ -58,7 +62,7 @@ export async function POST(req: Request) {
         })
       
 
-        return NextResponse.json(deal, {status: 201})
+        return withCors(NextResponse.json(deal, {status: 201}))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Deal Creation error: ', error)

@@ -4,6 +4,12 @@ import { createSanityProductDoc } from "@/sanity/lib/server";
 import { NextResponse } from "next/server";
 import slug from "slug";
 
+import { withCors, handleOptions } from "@/lib/cors";
+
+export function OPTIONS() {
+  return handleOptions();
+}
+
 // GET all product server code
 export async function GET(req: Request) {
 
@@ -21,7 +27,7 @@ export async function GET(req: Request) {
 
         // Convert to JSON-Safe Format
         const safeProducts = JSON.parse(JSON.stringify(products))
-        return NextResponse.json(safeProducts)
+        return withCors(NextResponse.json(safeProducts))
     } catch {
         return NextResponse.json({
             error: 'Failed to fetch products'
@@ -96,10 +102,10 @@ export async function POST(request: Request) {
         // Convert to JSON-safe format
         const safeProduct = JSON.parse(JSON.stringify(product))
         
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { success: true, productId: safeProduct?.id ?? null, product: safeProduct },
             { status: 201 }
-        )
+        ))
     } catch (error) {
         console.error('Creation error: ', error)
         return NextResponse.json({
