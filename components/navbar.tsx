@@ -19,8 +19,8 @@ export const Navbar = () => {
   console.log('Session: ', session?.data?.user)
   
   return (
-    <div className="sticky top-0 z-50 bg-white py-2">
-      <div className={`flex items-center justify-between px-5 shadow-md ${(deviceType === 'mobile' || deviceType === 'min-tablet') && 'flex-6'}`}>
+    <div className="sticky top-0 z-50 bg-white">
+      <div className={`flex py-2 items-center justify-between px-5 shadow-md ${(deviceType === 'mobile' || deviceType === 'min-tablet') && 'flex-6'}`}>
 
         {/* Logo */}
         <div className={`${(deviceType === 'mobile' || deviceType === 'min-tablet') ? 'flex-4 py-3' : ''}`}>

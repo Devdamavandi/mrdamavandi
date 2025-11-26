@@ -5,7 +5,7 @@
 html, body {
     scroll-behavior: smooth;
     width: 100%;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
 }
 
 @media (min-width: 481px){
