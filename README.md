@@ -1,8 +1,15 @@
+
+⚠️ **License & Usage Note**
+- The core source code in this repo is provided under the **MIT License** (see LICENSE file).
+- However, the **design assets, branding, and specific business logic** are proprietary and may not be reused commercially without permission.
+- This project is a portfolio demo — feel free to explore the code for learning, but please do not deploy it as-is for commercial purposes.
+
+
 Hello Guys!
 
 I'm David knight.
 
-I'm a fullstack web developer. This is a sample production grade project by Me.
+I'm a Next.js fullstack web developer. This is a sample production grade project by Me.
 
 I used:
 
@@ -13,6 +20,10 @@ I used:
 ✅ NextAuth v5
 ✅ Shadcn/ui
 ✅ React Hook Form
+✅ Sanity
+✅ Redis
+✅ Cloudinary
+✅ Typescript
 ✅ Zod
 
 This Project has:
@@ -22,7 +33,11 @@ This Project has:
 » Stripe Payment Flow
 » Cash-On Delivery Flow
 » Admin Panel
-» Real order model
+» Real order model 
+» Reporting System
+» Shopping & Cart Management System
+» Advanced Customer and Admin Dashboard
+
 
 → Its a production-level project with adavanced level payment system
   and functional and professional Authorization and Authentication System.
@@ -44,4 +59,4 @@ https://res.cloudinary.com/dyixn15yk/image/upload/v1752363332/Screenshot_2025-07
 https://res.cloudinary.com/dyixn15yk/image/upload/v1752363396/Screenshot_2025-07-13_030628_xm1csf.png
 
 Live version: 
-https://mrdamavandi.vercel.app
+https://davidknightmarketplace.vercel.app
