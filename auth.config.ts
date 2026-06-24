@@ -89,9 +89,16 @@ export default {
       }
       return session
     },
-    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
-      return url.startsWith(baseUrl) ? url : baseUrl
-    }
+    async redirect({ url, baseUrl }) {
+      // Allow relative URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+
+      // Allow same-origin absolute URLs
+      if (new URL(url).origin === baseUrl) return url
+
+      // Otherwise fallback
+      return baseUrl
+    },
   },
   pages: {
     signIn: "/auth/login",

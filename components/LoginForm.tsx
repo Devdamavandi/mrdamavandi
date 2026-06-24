@@ -20,7 +20,8 @@ import { FaGithub } from 'react-icons/fa'
 import { roboto } from "@/lib/fonts";
 
 
-const LoginPage = () => {
+const 
+LoginPage = () => {
 
     const [isLoading, setIsLoading] = useState(false)
 

@@ -5,13 +5,14 @@ import Image from "next/image"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useSession } from "next-auth/react"
 import { signOut } from "@/auth"
-import { PiSignOutBold } from "react-icons/pi"
 import { MdOutlineEmail } from "react-icons/md";
 import { roboto } from "@/lib/fonts"
 import { useState } from "react"
 import ProfilePage from "@/app/dashboard/profile/page"
 import CustomerOrdersPage from "./CustomerOrders"
+import dynamic from "next/dynamic"
 
+const PiSignOutBold = dynamic(() => import('react-icons/pi').then(mod => mod.PiSignOutBold))
 
 
 const CustomerDashboardPage = () => {

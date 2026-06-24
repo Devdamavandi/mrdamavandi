@@ -67,7 +67,7 @@ const PortfolioPage = () => {
             <h2 className={`text-left text-4xl pt-6 ${bebas.className} `}>Contact Me</h2>
             <div className='flex flex-col space-y-2 items-center'>
                 <a
-                    href="https://wa.me/+989900405829"
+                    href="https://wa.me/+939884521247"
                     target='_blank'
                     rel='noopener noreferrer'
                     className='bg-green-500 text-white px-4 py-2 rounded'

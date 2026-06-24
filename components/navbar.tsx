@@ -4,11 +4,13 @@ import { MenuIcon, House, Shirt, FileUser, Headset, PersonStanding, UserPlus, La
 import { FiUser } from "react-icons/fi";
 import { useDeviceType } from "@/hooks/useDeviceType" 
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover"
-import { PiSignOutBold } from "react-icons/pi";
 import { IoIosLogIn } from "react-icons/io";
 import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import dynamic from "next/dynamic";
+
+const PiSignOutBold = dynamic(() => import('react-icons/pi').then(mod => mod.PiSignOutBold))
 
 export const Navbar = () => {
 

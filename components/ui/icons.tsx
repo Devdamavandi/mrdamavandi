@@ -8,8 +8,10 @@ import {
     Settings,
     Package,
 } from 'lucide-react'
-import { TbShoppingCartCheck } from "react-icons/tb";
 import { FaRegComments } from "react-icons/fa";
+import dynamic from 'next/dynamic';
+
+const TbShoppingCartCheck = dynamic(() => import('react-icons/tb').then(mod => mod.TbShoppingCartCheck))
 
 export const Icons = {
     dashbaord: LayoutDashboard,

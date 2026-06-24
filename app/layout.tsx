@@ -14,6 +14,7 @@ const NoNavRoutes = [
 	"/dashboard",
 	"/auth/register",
 	"/auth/login",
+	"/auth/reset-password",
 	"/portfolio"
 ]
 
